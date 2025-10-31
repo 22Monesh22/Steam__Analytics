@@ -1,0 +1,443 @@
+ <style>
+/* Steam Analytics Chatbot Styles */
+.steam-chatbot-wrapper {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    z-index: 10000;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Toggle Button */
+.chatbot-toggle {
+    position: relative;
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 3px solid white;
+}
+
+.chatbot-toggle:hover {
+    transform: scale(1.1);
+    box-shadow: 0 12px 35px rgba(102, 126, 234, 0.6);
+}
+
+.toggle-icon {
+    color: white;
+}
+
+.unread-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #ef4444;
+    color: white;
+    border-radius: 10px;
+    min-width: 20px;
+    height: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid white;
+}
+
+/* Chat Window */
+.chatbot-window {
+    position: absolute;
+    bottom: 80px;
+    left: 0;
+    width: 380px;
+    height: 600px;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid #e2e8f0;
+}
+
+.chatbot-window.active {
+    display: flex;
+}
+
+/* Header */
+.chat-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.chat-avatar {
+    width: 36px;
+    height: 36px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.chat-info h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.status {
+    font-size: 12px;
+    opacity: 0.9;
+}
+
+.status.online {
+    color: #10b981;
+}
+
+.header-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.header-actions button {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 6px;
+    transition: background 0.2s;
+}
+
+.header-actions button:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* Messages Container */
+.messages-container {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    background: #f8fafc;
+}
+
+/* Messages */
+.message {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.message-avatar {
+    flex-shrink: 0;
+}
+
+.user-avatar, .ai-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+}
+
+.user-avatar {
+    background: #e2e8f0;
+    color: #64748b;
+}
+
+.ai-avatar {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.message-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.message-bubble {
+    padding: 12px 16px;
+    border-radius: 18px;
+    font-size: 14px;
+    line-height: 1.4;
+    word-wrap: break-word;
+}
+
+.user-message .message-bubble {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-bottom-right-radius: 4px;
+}
+
+.assistant-message .message-bubble {
+    background: white;
+    color: #1e293b;
+    border: 1px solid #e2e8f0;
+    border-bottom-left-radius: 4px;
+}
+
+/* Input Area */
+.input-container {
+    padding: 16px 20px;
+    border-top: 1px solid #e2e8f0;
+    background: white;
+}
+
+.input-wrapper {
+    display: flex;
+    gap: 12px;
+    align-items: flex-end;
+}
+
+#chatInput {
+    flex: 1;
+    padding: 12px 16px;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    font-size: 14px;
+    resize: none;
+    outline: none;
+    transition: all 0.2s;
+    background: #f8fafc;
+}
+
+#chatInput:focus {
+    border-color: #667eea;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.btn-send {
+    width: 44px;
+    height: 44px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    border-radius: 12px;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    flex-shrink: 0;
+}
+
+.btn-send:hover:not(:disabled) {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.input-footer {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 8px;
+    font-size: 11px;
+    color: #94a3b8;
+}
+
+/* Suggestions */
+.suggestions-container {
+    padding: 16px 20px;
+    border-top: 1px solid #e2e8f0;
+    background: white;
+}
+
+.suggestions-header {
+    font-size: 12px;
+    font-weight: 600;
+    color: #64748b;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.suggestions-grid {
+    display: grid;
+    gap: 8px;
+}
+
+.suggestion-chip {
+    padding: 10px 14px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: 13px;
+    color: #475569;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: left;
+    line-height: 1.3;
+}
+
+.suggestion-chip:hover {
+    background: #667eea;
+    color: white;
+    transform: translateY(-1px);
+}
+
+/* Make sure it's visible on top of everything */
+.steam-chatbot-wrapper {
+    z-index: 99999 !important;
+}
+
+.chatbot-toggle {
+    z-index: 100000 !important;
+}
+
+.chatbot-window {
+    z-index: 99998 !important;
+}
+</style>
+<!-- Steam Analytics Chatbot Widget -->
+<div id="steamChatbot" class="steam-chatbot-wrapper">
+    <!-- Chat Toggle Button -->
+    <div class="chatbot-toggle" id="chatbotToggle" aria-label="Open chat" role="button" tabindex="0">
+        <div class="toggle-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M20 2H4C2.9 2 2 2.9 2 4V22L6 18H20C21.1 18 22 17.1 22 16V4C22 2.9 21.1 2 20 2Z" fill="currentColor"/>
+                <path d="M7 9H17M7 13H14" stroke="white" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+        </div>
+        <div class="unread-badge" id="unreadBadge" aria-live="polite">0</div>
+        <div class="connection-status status-online" id="connectionStatus"></div>
+    </div>
+
+    <!-- Chat Window -->
+    <div class="chatbot-window" id="chatbotWindow" role="dialog" aria-label="Chat with Steam Analytics AI" aria-modal="true">
+        <!-- Header -->
+        <div class="chat-header">
+            <div class="header-left">
+                <div class="chat-avatar" aria-hidden="true">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M20 2H4C2.9 2 2 2.9 2 4V22L6 18H20C21.1 18 22 17.1 22 16V4C22 2.9 21.1 2 20 2Z" fill="currentColor"/>
+                    </svg>
+                </div>
+                <div class="chat-info">
+                    <h3>Steam Analytics AI</h3>
+                    <span class="status online" id="botStatus">● Online</span>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button class="btn-minimize" id="minimizeBtn" aria-label="Minimize chat">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M18 15L12 9L6 15"/>
+                    </svg>
+                </button>
+                <button class="btn-close" id="closeBtn" aria-label="Close chat">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Messages Container -->
+        <div class="messages-container" id="messagesContainer" role="log" aria-live="polite">
+            <!-- Welcome message will be loaded here -->
+        </div>
+
+        <!-- Suggestions -->
+        <div class="suggestions-container" id="suggestionsContainer">
+            <div class="suggestions-header">
+                <span>Quick Questions</span>
+            </div>
+            <div class="suggestions-grid" id="suggestionsGrid" role="list">
+                <!-- Suggestions will be loaded dynamically -->
+            </div>
+        </div>
+
+        <!-- Input Area -->
+        <div class="input-container">
+            <div class="input-wrapper">
+                <input type="text" 
+                       id="chatInput" 
+                       placeholder="Ask about sales, users, or games..."
+                       maxlength="500"
+                       aria-label="Type your message"
+                       aria-required="true">
+                <button class="voice-input-btn" id="voiceInputBtn" aria-label="Voice input" style="display: none;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 1C11.2044 1 10.4413 1.31607 9.87868 1.87868C9.31607 2.44129 9 3.20435 9 4V12C9 12.7956 9.31607 13.5587 9.87868 14.1213C10.4413 14.6839 11.2044 15 12 15C12.7956 15 13.5587 14.6839 14.1213 14.1213C14.6839 13.5587 15 12.7956 15 12V4C15 3.20435 14.6839 2.44129 14.1213 1.87868C13.5587 1.31607 12.7956 1 12 1Z" fill="currentColor"/>
+                        <path d="M19 12C19 12.7396 18.898 13.4737 18.698 14.1799C18.498 14.886 18.2029 15.5555 17.823 16.165C17.443 16.7745 16.9831 17.3169 16.4609 17.7725C15.9387 18.2281 15.3606 18.5917 14.7477 18.8506C14.1347 19.1096 13.4944 19.2608 12.844 19.2993C12.1936 19.3378 11.5413 19.2632 10.9125 19.0785C10.2837 18.8938 9.68666 18.6014 9.145 18.2129C8.60334 17.8244 8.12424 17.3453 7.726 16.793L9.07 15.707C9.33413 16.0871 9.66115 16.4141 10.0413 16.6783C10.4214 16.9424 10.8469 17.1389 11.2955 17.2578C11.7442 17.3767 12.2081 17.416 12.6683 17.3741C13.1285 17.3321 13.5768 17.2096 14 17.012C14.4206 16.8161 14.8068 16.5467 15.1401 16.2164C15.4734 15.8861 15.748 15.5004 15.9506 15.0769C16.1532 14.6534 16.2805 14.199 16.3265 13.7334C16.3725 13.2678 16.3364 12.7986 16.22 12.346L16.076 11.77H18.062L18.206 12.346C18.3578 13.0651 18.3578 13.8068 18.206 14.526C18.0542 15.2451 17.7531 15.9276 17.321 16.526C16.8889 17.1244 16.3352 17.625 15.6983 17.9928C15.0614 18.3606 14.3561 18.5872 13.63 18.658L13.5 19H14C14.6566 19 15.3068 18.8707 15.9134 18.6194C16.52 18.3681 17.0712 17.9998 17.5355 17.5355C17.9998 17.0712 18.3681 16.52 18.6194 15.9134C18.8707 15.3068 19 14.6566 19 14V12Z" fill="currentColor"/>
+                    </svg>
+                </button>
+                <button id="sendButton" class="btn-send" aria-label="Send message">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="input-footer">
+                <span class="char-count"><span id="charCount">0</span>/500</span>
+                <span class="shortcut-hint">Press Enter to send</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Notification System -->
+<div class="chat-notification" id="chatNotification" aria-live="polite">
+    <div class="notification-content">
+        <div class="notification-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 22C13.1 22 14 21.1 14 20H10C10 21.1 10.9 22 12 22ZM18 16V11C18 7.93 16.37 5.36 13.5 4.68V4C13.5 3.17 12.83 2.5 12 2.5C11.17 2.5 10.5 3.17 10.5 4V4.68C7.64 5.36 6 7.92 6 11V16L4 18V19H20V18L18 16Z" fill="currentColor"/>
+            </svg>
+        </div>
+        <div class="notification-message" id="notificationMessage"></div>
+    </div>
+</div>
+
+<!-- Context Menu -->
+<div class="context-menu" id="contextMenu" style="display: none;">
+    <div class="context-menu-item" data-action="copy">Copy message</div>
+    <div class="context-menu-item" data-action="share">Share</div>
+    <div class="context-menu-item" data-action="delete">Delete</div>
+</div>
+
+<!-- Chat History Preview -->
+<div class="chat-history-preview" id="chatHistoryPreview">
+    <div class="preview-header">
+        <h4>Recent Chats</h4>
+        <button class="btn-clear" id="clearHistoryBtn">Clear All</button>
+    </div>
+    <div class="preview-list" id="previewList">
+        <!-- History items will be loaded here -->
+    </div>
+</div>
+
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="loadingOverlay" style="display: none;">
+    <div class="loading-spinner">
+        <div class="spinner"></div>
+        <p>Processing your request...</p>
+    </div>
+</div>
+
+<!-- Error Boundary -->
+<div class="error-boundary" id="errorBoundary" style="display: none;">
+    <div class="error-content">
+        <h4>Something went wrong</h4>
+        <p>The chatbot encountered an error. Please refresh the page.</p>
+        <button class="btn-retry" id="retryBtn">Retry</button>
+    </div>
+</div>

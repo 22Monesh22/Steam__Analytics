@@ -1,0 +1,132 @@
+{
+  "project_name": "Steam Games Analytics Platform",
+  "version": "1.0.0",
+  "description": "Advanced analytics platform for Steam games database with 50,000+ game records",
+  "dataset_stats": {
+    "total_games": 50872,
+    "total_tags": 584215,
+    "unique_tags": 441,
+    "games_with_descriptions": 40499,
+    "file_size_mb": 16.74,
+    "problematic_records": 0
+  },
+  "top_tags": [
+    {
+      "tag": "Indie",
+      "count": 27957
+    },
+    {
+      "tag": "Singleplayer",
+      "count": 22566
+    },
+    {
+      "tag": "Action",
+      "count": 21897
+    },
+    {
+      "tag": "Adventure",
+      "count": 20183
+    },
+    {
+      "tag": "Casual",
+      "count": 17844
+    },
+    {
+      "tag": "Simulation",
+      "count": 12691
+    },
+    {
+      "tag": "2D",
+      "count": 11438
+    },
+    {
+      "tag": "Strategy",
+      "count": 11093
+    },
+    {
+      "tag": "RPG",
+      "count": 10156
+    },
+    {
+      "tag": "Atmospheric",
+      "count": 8688
+    },
+    {
+      "tag": "Puzzle",
+      "count": 7585
+    },
+    {
+      "tag": "Story Rich",
+      "count": 7149
+    },
+    {
+      "tag": "Multiplayer",
+      "count": 6575
+    },
+    {
+      "tag": "3D",
+      "count": 6142
+    },
+    {
+      "tag": "Pixel Graphics",
+      "count": 6028
+    },
+    {
+      "tag": "Exploration",
+      "count": 5769
+    },
+    {
+      "tag": "Cute",
+      "count": 5702
+    },
+    {
+      "tag": "Colorful",
+      "count": 5693
+    },
+    {
+      "tag": "Free to Play",
+      "count": 5645
+    },
+    {
+      "tag": "First-Person",
+      "count": 5570
+    }
+  ],
+  "sample_game_structure": {
+    "app_id": "Steam application ID",
+    "description": "Game description",
+    "tags": [
+      "Action",
+      "Adventure",
+      "RPG"
+    ]
+  },
+  "features": [
+    "Game discovery and recommendation",
+    "Tag-based game analysis",
+    "Game description analysis",
+    "Trend analysis across 50K+ games",
+    "Genre popularity insights",
+    "Game similarity matching"
+  ],
+  "supported_analyses": [
+    "Game recommendation based on tags",
+    "Genre popularity trends",
+    "Game description sentiment analysis",
+    "Tag correlation analysis",
+    "Game discovery by features",
+    "Market trend analysis"
+  ],
+  "data_sources": [
+    "Steam Games Database (50,872 records)",
+    "Game metadata and descriptions",
+    "User-generated tags and categories"
+  ],
+  "report_types": [
+    "Game recommendation reports",
+    "Genre analysis dashboards",
+    "Market trend reports",
+    "Game discovery insights",
+    "Tag popularity analysis"
+  ]
+}

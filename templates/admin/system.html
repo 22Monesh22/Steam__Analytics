@@ -1,0 +1,152 @@
+{% extends "layouts/admin.html" %}
+
+{% block title %}System Monitor - Steam Analytics{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-6 py-8">
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900">System Monitoring</h1>
+        <p class="text-gray-600 mt-2">Real-time system health and performance metrics</p>
+    </div>
+
+    <!-- System Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+            <div class="flex items-center">
+                <div class="p-3 bg-blue-100 rounded-lg">
+                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                    </svg>
+                </div>
+                <div class="ml-4">
+                    <h3 class="text-sm font-medium text-gray-600">Total Users</h3>
+                    <p class="text-2xl font-bold text-gray-900">{{ stats.total_users|default(0) }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+            <div class="flex items-center">
+                <div class="p-3 bg-green-100 rounded-lg">
+                    <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+                    </svg>
+                </div>
+                <div class="ml-4">
+                    <h3 class="text-sm font-medium text-gray-600">Total Games</h3>
+                    <p class="text-2xl font-bold text-gray-900">{{ stats.total_games|default(0) }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+            <div class="flex items-center">
+                <div class="p-3 bg-purple-100 rounded-lg">
+                    <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                    </svg>
+                </div>
+                <div class="ml-4">
+                    <h3 class="text-sm font-medium text-gray-600">AI Insights</h3>
+                    <p class="text-2xl font-bold text-gray-900">{{ stats.total_insights|default(0) }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+            <div class="flex items-center">
+                <div class="p-3 bg-orange-100 rounded-lg">
+                    <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <div class="ml-4">
+                    <h3 class="text-sm font-medium text-gray-600">System Health</h3>
+                    <p class="text-2xl font-bold text-gray-900">{{ stats.system_health|default('Unknown')|title }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- System Information -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Service Status -->
+        <div class="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Service Status</h3>
+            <div class="space-y-4">
+                <div class="flex items-center justify-between p-3 bg-green-50 rounded-lg border border-green-200">
+                    <div class="flex items-center">
+                        <div class="w-3 h-3 bg-green-400 rounded-full mr-3"></div>
+                        <span class="font-medium text-green-800">Web Application</span>
+                    </div>
+                    <span class="text-green-700 text-sm">Operational</span>
+                </div>
+                <div class="flex items-center justify-between p-3 bg-green-50 rounded-lg border border-green-200">
+                    <div class="flex items-center">
+                        <div class="w-3 h-3 bg-green-400 rounded-full mr-3"></div>
+                        <span class="font-medium text-green-800">Database</span>
+                    </div>
+                    <span class="text-green-700 text-sm">Connected</span>
+                </div>
+                <div class="flex items-center justify-between p-3 bg-green-50 rounded-lg border border-green-200">
+                    <div class="flex items-center">
+                        <div class="w-3 h-3 bg-green-400 rounded-full mr-3"></div>
+                        <span class="font-medium text-green-800">AI Services</span>
+                    </div>
+                    <span class="text-green-700 text-sm">Available</span>
+                </div>
+                <div class="flex items-center justify-between p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+                    <div class="flex items-center">
+                        <div class="w-3 h-3 bg-yellow-400 rounded-full mr-3"></div>
+                        <span class="font-medium text-yellow-800">Cache Service</span>
+                    </div>
+                    <span class="text-yellow-700 text-sm">Degraded</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Metrics -->
+        <div class="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Performance Metrics</h3>
+            <div class="space-y-4">
+                <div>
+                    <div class="flex justify-between text-sm text-gray-600 mb-1">
+                        <span>CPU Usage</span>
+                        <span>45%</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div class="bg-blue-600 h-2 rounded-full" style="width: 45%"></div>
+                    </div>
+                </div>
+                <div>
+                    <div class="flex justify-between text-sm text-gray-600 mb-1">
+                        <span>Memory Usage</span>
+                        <span>67%</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div class="bg-green-600 h-2 rounded-full" style="width: 67%"></div>
+                    </div>
+                </div>
+                <div>
+                    <div class="flex justify-between text-sm text-gray-600 mb-1">
+                        <span>Disk Usage</span>
+                        <span>32%</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div class="bg-purple-600 h-2 rounded-full" style="width: 32%"></div>
+                    </div>
+                </div>
+                <div>
+                    <div class="flex justify-between text-sm text-gray-600 mb-1">
+                        <span>Network I/O</span>
+                        <span>1.2 MB/s</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div class="bg-orange-600 h-2 rounded-full" style="width: 60%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

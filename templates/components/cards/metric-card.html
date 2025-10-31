@@ -1,0 +1,31 @@
+<div class="metric-card bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-xl transition duration-300">
+    <div class="flex items-center justify-between mb-4">
+        <div>
+            <h3 class="text-sm font-medium text-gray-600">{{ title }}</h3>
+            <p class="text-2xl font-bold text-gray-900 mt-1">{{ value }}</p>
+        </div>
+        <div class="p-3 rounded-lg {{ icon_bg }}">
+            {{ icon|safe }}
+        </div>
+    </div>
+    
+    {% if trend %}
+    <div class="flex items-center text-sm {{ 'text-green-600' if trend.direction == 'up' else 'text-red-600' }}">
+        {% if trend.direction == 'up' %}
+        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+        </svg>
+        {% else %}
+        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+        </svg>
+        {% endif %}
+        <span>{{ trend.value }}</span>
+        <span class="text-gray-500 ml-1">{{ trend.period }}</span>
+    </div>
+    {% endif %}
+    
+    {% if description %}
+    <p class="text-xs text-gray-500 mt-2">{{ description }}</p>
+    {% endif %}
+</div>

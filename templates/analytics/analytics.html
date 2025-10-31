@@ -1,0 +1,1165 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Advanced Analytics - Steam Analytics{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --success-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        --warning-gradient: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        --danger-gradient: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    }
+
+    .glass-effect {
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .stat-card {
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+        position: relative;
+        overflow: hidden;
+        border-radius: 20px;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+
+    .chart-container {
+        background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.8);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .chart-container::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: var(--primary-gradient);
+    }
+
+    .pulse-dot {
+        animation: pulse 2s infinite;
+        box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.7);
+    }
+
+    @keyframes pulse {
+        0% {
+            transform: scale(0.95);
+            box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.7);
+        }
+        70% {
+            transform: scale(1);
+            box-shadow: 0 0 0 12px rgba(74, 222, 128, 0);
+        }
+        100% {
+            transform: scale(0.95);
+            box-shadow: 0 0 0 0 rgba(74, 222, 128, 0);
+        }
+    }
+
+    .fade-in {
+        animation: fadeInUp 0.8s ease-out;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .loading-shimmer {
+        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+        background-size: 200% 100%;
+        animation: shimmer 2s infinite;
+        border-radius: 8px;
+    }
+
+    @keyframes shimmer {
+        0% { background-position: -200% 0; }
+        100% { background-position: 200% 0; }
+    }
+
+    .metric-badge {
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .metric-badge:hover {
+        transform: scale(1.05);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+
+    .stagger-animation > * {
+        opacity: 0;
+        transform: translateY(20px);
+        animation: staggerFadeIn 0.6s ease-out forwards;
+    }
+
+    .stagger-animation > *:nth-child(1) { animation-delay: 0.1s; }
+    .stagger-animation > *:nth-child(2) { animation-delay: 0.2s; }
+    .stagger-animation > *:nth-child(3) { animation-delay: 0.3s; }
+    .stagger-animation > *:nth-child(4) { animation-delay: 0.4s; }
+
+    @keyframes staggerFadeIn {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .chart-canvas {
+        width: 100% !important;
+        height: 100% !important;
+        min-height: 320px;
+    }
+
+    @media (max-width: 768px) {
+        .chart-container {
+            padding: 1rem;
+        }
+        .stat-card {
+            padding: 1.5rem !important;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Premium Header -->
+        <div class="mb-8 fade-in">
+            <div class="glass-effect rounded-3xl p-8 shadow-2xl">
+                <div class="flex flex-col lg:flex-row items-center justify-between space-y-6 lg:space-y-0">
+                    <div class="text-center lg:text-left">
+                        <h1 class="text-4xl lg:text-5xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4">
+                            📊 Advanced Analytics
+                        </h1>
+                        <p class="text-xl text-gray-700 font-medium">
+                            Real-time insights from <strong class="text-blue-600">{{ total_records|default('60M+') }} Steam records</strong>
+                        </p>
+                    </div>
+                    <div class="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6">
+                        <button onclick="refreshAnalyticsData()" class="group flex items-center px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-2xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 shadow-2xl hover:shadow-3xl transform hover:scale-105">
+                            <svg class="w-6 h-6 mr-3 group-hover:rotate-180 transition-transform duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                            </svg>
+                            <span class="font-bold text-lg">Refresh Data</span>
+                        </button>
+                        <div class="glass-effect rounded-2xl p-4 shadow-xl text-center">
+                            <p class="text-sm text-gray-600 font-medium">Last Updated</p>
+                            <p class="text-xl font-bold text-gray-900" id="last-updated">{{ last_updated|default('Just now') }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="glass-effect rounded-3xl p-2 shadow-2xl mb-8 fade-in">
+            <div class="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2">
+                <a href="{{ url_for('analytics.games') }}" 
+                   class="flex-1 text-center px-6 py-4 rounded-2xl font-semibold transition-all duration-300 {% if active_tab == 'games' %}bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg{% else %}text-gray-700 hover:text-gray-900 bg-gray-100 hover:bg-gray-200{% endif %}">
+                    🎮 Games Analytics
+                </a>
+                <a href="{{ url_for('analytics.users') }}" 
+                   class="flex-1 text-center px-6 py-4 rounded-2xl font-semibold transition-all duration-300 {% if active_tab == 'users' %}bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg{% else %}text-gray-700 hover:text-gray-900 bg-gray-100 hover:bg-gray-200{% endif %}">
+                    👥 User Behavior
+                </a>
+                <a href="{{ url_for('powerbi.dashboards') }}" 
+                   class="flex-1 text-center px-6 py-4 rounded-2xl font-semibold transition-all duration-300 text-gray-700 hover:text-gray-900 bg-gray-100 hover:bg-gray-200">
+                    📈 Power BI Dashboards
+                </a>
+            </div>
+        </div>
+
+        <!-- Dynamic Content Area -->
+        {% if active_tab == 'games' %}
+        <!-- Games Analytics Content -->
+        <div class="space-y-8 fade-in">
+            <!-- Games Metrics Overview -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 stagger-animation">
+                <div class="stat-card rounded-3xl p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-2xl">
+                            <span class="text-2xl text-white">🎮</span>
+                        </div>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-700 mb-2">Total Games</h3>
+                    <p class="text-4xl font-black text-gray-900 mb-2" id="total-games">{{ games_metrics.total_games|default('0') }}</p>
+                    <div class="flex items-center text-green-600 font-semibold">
+                        <svg class="w-5 h-5 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+                        </svg>
+                        +{{ games_metrics.growth_rate|default('12.5') }}% growth
+                    </div>
+                </div>
+
+                <div class="stat-card rounded-3xl p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-14 h-14 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center shadow-2xl">
+                            <span class="text-2xl text-white">⭐</span>
+                        </div>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-700 mb-2">Avg Rating</h3>
+                    <p class="text-4xl font-black text-gray-900 mb-2" id="avg-rating">{{ games_metrics.avg_rating|default('4.2') }}/5</p>
+                    <div class="flex items-center text-green-600 font-semibold">
+                        <svg class="w-5 h-5 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+                        </svg>
+                        +{{ games_metrics.rating_growth|default('0.3') }} this month
+                    </div>
+                </div>
+
+                <div class="stat-card rounded-3xl p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-14 h-14 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-2xl">
+                            <span class="text-2xl text-white">💰</span>
+                        </div>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-700 mb-2">Avg Price</h3>
+                    <p class="text-4xl font-black text-gray-900 mb-2" id="avg-price">${{ games_metrics.avg_price|default('24.99') }}</p>
+                    <div class="flex items-center text-blue-600 font-semibold">
+                        <svg class="w-5 h-5 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" clip-rule="evenodd"/>
+                        </svg>
+                        Market Stable
+                    </div>
+                </div>
+
+                <div class="stat-card rounded-3xl p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-14 h-14 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center shadow-2xl">
+                            <span class="text-2xl text-white">🏆</span>
+                        </div>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-700 mb-2">Top Genre</h3>
+                    <p class="text-4xl font-black text-gray-900 mb-2" id="top-genre">{{ games_metrics.top_genre|default('Action') }}</p>
+                    <div class="flex items-center text-purple-600 font-semibold">
+                        <svg class="w-5 h-5 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" clip-rule="evenodd"/>
+                        </svg>
+                        Most Popular
+                    </div>
+                </div>
+            </div>
+
+            <!-- Games Charts Row -->
+            <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
+                <div class="chart-container">
+                    <h3 class="text-2xl font-bold text-gray-900 mb-6">🔥 Top Games by Popularity</h3>
+                    <div class="h-80 lg:h-96">
+                        <canvas id="popularGamesChart" class="chart-canvas"></canvas>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <h3 class="text-2xl font-bold text-gray-900 mb-6">📊 Genre Distribution</h3>
+                    <div class="h-80 lg:h-96">
+                        <canvas id="genreDistributionChart" class="chart-canvas"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Additional Games Charts -->
+            <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
+                <div class="chart-container">
+                    <h3 class="text-2xl font-bold text-gray-900 mb-6">💰 Price Distribution</h3>
+                    <div class="h-80 lg:h-96">
+                        <canvas id="priceDistributionChart" class="chart-canvas"></canvas>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <h3 class="text-2xl font-bold text-gray-900 mb-6">⭐ Rating Analysis</h3>
+                    <div class="h-80 lg:h-96">
+                        <canvas id="ratingAnalysisChart" class="chart-canvas"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% elif active_tab == 'users' %}
+        <!-- User Analytics Content -->
+        <div class="space-y-8 fade-in">
+            <!-- User Metrics Overview -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 stagger-animation">
+                <div class="stat-card rounded-3xl p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-2xl">
+                            <span class="text-2xl text-white">⏱️</span>
+                        </div>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-700 mb-2">Avg Playtime</h3>
+                    <p class="text-4xl font-black text-gray-900 mb-2" id="avg-playtime-user">{{ user_metrics.avg_playtime|default('45.2') }} hrs</p>
+                    <div class="flex items-center text-green-600 font-semibold">
+                        <svg class="w-5 h-5 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+                        </svg>
+                        +{{ user_metrics.playtime_growth|default('15.2') }}% growth
+                    </div>
+                </div>
+
+                <div class="stat-card rounded-3xl p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-14 h-14 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center shadow-2xl">
+                            <span class="text-2xl text-white">✅</span>
+                        </div>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-700 mb-2">Completion Rate</h3>
+                    <p class="text-4xl font-black text-gray-900 mb-2" id="completion-rate">{{ user_metrics.completion_rate|default('68') }}%</p>
+                    <div class="flex items-center text-green-600 font-semibold">
+                        <svg class="w-5 h-5 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+                        </svg>
+                        +{{ user_metrics.completion_growth|default('8.3') }}% this month
+                    </div>
+                </div>
+
+                <div class="stat-card rounded-3xl p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-14 h-14 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-2xl">
+                            <span class="text-2xl text-white">🔄</span>
+                        </div>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-700 mb-2">Retention Rate</h3>
+                    <p class="text-4xl font-black text-gray-900 mb-2" id="retention-rate">{{ user_metrics.retention_rate|default('72') }}%</p>
+                    <div class="flex items-center text-green-600 font-semibold">
+                        <svg class="w-5 h-5 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+                        </svg>
+                        +{{ user_metrics.retention_growth|default('12.5') }}% growth
+                    </div>
+                </div>
+
+                <div class="stat-card rounded-3xl p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-14 h-14 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center shadow-2xl">
+                            <span class="text-2xl text-white">📈</span>
+                        </div>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-700 mb-2">Peak Activity</h3>
+                    <p class="text-4xl font-black text-gray-900 mb-2" id="peak-hours">{{ user_metrics.peak_hours|default('6-9 PM') }}</p>
+                    <div class="flex items-center text-blue-600 font-semibold">
+                        <svg class="w-5 h-5 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" clip-rule="evenodd"/>
+                        </svg>
+                        Evening Peak
+                    </div>
+                </div>
+            </div>
+
+            <!-- User Charts Row -->
+            <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
+                <!-- User Behavior Trends -->
+                <div class="chart-container">
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 space-y-3 sm:space-y-0">
+                        <h3 class="text-2xl font-bold text-gray-900">📈 User Activity Trends</h3>
+                        <div class="flex items-center space-x-2">
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-bold bg-blue-100 text-blue-800 border border-blue-200">
+                                <span class="w-2 h-2 bg-blue-500 rounded-full mr-2 pulse-dot"></span>
+                                Live Data
+                            </span>
+                        </div>
+                    </div>
+                    <div class="h-80 lg:h-96">
+                        <canvas id="userTrendsChart" class="chart-canvas"></canvas>
+                    </div>
+                </div>
+
+                <!-- Preferred Genres -->
+                <div class="chart-container">
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 space-y-3 sm:space-y-0">
+                        <h3 class="text-2xl font-bold text-gray-900">🎯 User Preferred Genres</h3>
+                        <div class="flex items-center space-x-2">
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-bold bg-green-100 text-green-800 border border-green-200">
+                                <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                                Real-time
+                            </span>
+                        </div>
+                    </div>
+                    <div class="h-80 lg:h-96">
+                        <canvas id="userGenresChart" class="chart-canvas"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- User Demographics -->
+            <div class="chart-container">
+                <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between mb-6 space-y-4 lg:space-y-0">
+                    <h3 class="text-2xl font-bold text-gray-900">👥 User Demographics & Behavior</h3>
+                    <div class="flex items-center space-x-4">
+                        <select id="demographicFilter" class="border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 font-medium bg-white">
+                            <option value="age">By Age Group</option>
+                            <option value="region">By Region</option>
+                            <option value="engagement">By Engagement</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="h-80 lg:h-96">
+                    <canvas id="demographicsChart" class="chart-canvas"></canvas>
+                </div>
+            </div>
+
+            <!-- User Engagement Patterns -->
+            <div class="chart-container">
+                <h3 class="text-2xl font-bold text-gray-900 mb-6">🕒 Daily Engagement Patterns</h3>
+                <div class="h-80 lg:h-96">
+                    <canvas id="engagementPatternsChart" class="chart-canvas"></canvas>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<script>
+    // Professional Dashboard Initialization
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('🚀 Initializing Professional Analytics Dashboard...');
+        initializeProfessionalDashboard();
+    });
+
+    let userBehaviorData = null;
+    let userCharts = {};
+    let gamesData = null;
+
+    async function initializeProfessionalDashboard() {
+        await loadAllData();
+        initializeAllCharts();
+        startProfessionalUpdates();
+        
+        // Update the stats cards with real data
+        updateStatsCards();
+    }
+
+    async function loadAllData() {
+        try {
+            console.log('📊 Loading all analytics data...');
+            
+            // Load user behavior data
+            await loadUserBehaviorData();
+            
+            // Load games data
+            await loadGamesData();
+            
+            console.log('✅ All data loaded successfully');
+            
+        } catch (error) {
+            console.error('❌ Error loading data:', error);
+            loadFallbackData();
+        }
+    }
+
+    async function loadUserBehaviorData() {
+        try {
+            const response = await fetch('/analytics/api/user-analytics');
+            if (response.ok) {
+                userBehaviorData = await response.json();
+                console.log('✅ User behavior data loaded from API');
+                console.log('📊 User data:', userBehaviorData);
+            } else {
+                throw new Error('API response not OK');
+            }
+        } catch (error) {
+            console.log('🔄 Using fallback user data');
+            userBehaviorData = {
+                activityTrends: {
+                    months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
+                    activeUsers: [12500, 13200, 14500, 15800, 16700, 18900, 20100, 21500],
+                    newUsers: [1200, 1500, 1800, 2100, 1900, 2300, 2500, 2800],
+                    returningUsers: [9800, 10400, 11500, 12500, 13500, 14800, 15800, 16900]
+                },
+                preferredGenres: {
+                    labels: ['Action', 'RPG', 'Strategy', 'Sports', 'Casual', 'Simulation', 'Adventure', 'Indie'],
+                    data: [35, 25, 15, 8, 7, 5, 3, 2]
+                },
+                demographics: {
+                    ageGroups: ['18-24', '25-34', '35-44', '45-54', '55+'],
+                    distribution: [28, 35, 20, 12, 5]
+                },
+                engagementPatterns: {
+                    hours: ['12AM', '3AM', '6AM', '9AM', '12PM', '3PM', '6PM', '9PM'],
+                    engagement: [15, 8, 12, 25, 35, 45, 68, 72]
+                },
+                user_metrics: {
+                    avg_playtime: '200.2',
+                    playtime_growth: '12.8',
+                    completion_rate: '65',
+                    completion_growth: '5.2',
+                    retention_rate: '78',
+                    retention_growth: '8.1',
+                    peak_hours: '7-10 PM'
+                }
+            };
+        }
+    }
+
+    async function loadGamesData() {
+        try {
+            const response = await fetch('/analytics/api/games-analytics');
+            if (response.ok) {
+                gamesData = await response.json();
+                console.log('✅ Games data loaded from API');
+                console.log('🎮 Games data:', gamesData);
+            } else {
+                throw new Error('API response not OK');
+            }
+        } catch (error) {
+            console.log('🔄 Using fallback games data');
+            gamesData = {
+                total_games: 50872,
+                avg_rating: 3.8,
+                avg_price: 8.48,
+                top_genre: 'Very Positive',
+                top_games: {
+                    labels: ['Bunny e-Shop', 'Dead In Vinland', 'Monster Hunter World', 'WORDLAND 2', 'Monster Roadtrip'],
+                    popularity: [95, 92, 90, 88, 85]
+                },
+                genre_distribution: {
+                    labels: ['Very Positive', 'Positive', 'Mixed', 'Mostly Positive'],
+                    data: [35, 25, 20, 20]
+                },
+                price_distribution: {
+                    ranges: ['$0-5', '$5-10', '$10-20', '$20-30', '$30-40', '$40+'],
+                    counts: [45, 25, 15, 8, 4, 3]
+                },
+                rating_analysis: {
+                    ranges: ['0-25%', '25-50%', '50-75%', '75-100%'],
+                    counts: [10, 20, 40, 30]
+                }
+            };
+        }
+    }
+
+    function updateStatsCards() {
+        // Update games stats
+        if (gamesData) {
+            const totalGamesEl = document.getElementById('total-games');
+            const avgRatingEl = document.getElementById('avg-rating');
+            const avgPriceEl = document.getElementById('avg-price');
+            const topGenreEl = document.getElementById('top-genre');
+            
+            if (totalGamesEl) totalGamesEl.textContent = gamesData.total_games || '50,872';
+            if (avgRatingEl) avgRatingEl.textContent = (gamesData.avg_rating || '3.8') + '/5';
+            if (avgPriceEl) avgPriceEl.textContent = '$' + (gamesData.avg_price || '8.48');
+            if (topGenreEl) topGenreEl.textContent = gamesData.top_genre || 'Very Positive';
+        }
+
+        // Update user stats
+        if (userBehaviorData && userBehaviorData.user_metrics) {
+            const avgPlaytimeEl = document.getElementById('avg-playtime-user');
+            const completionRateEl = document.getElementById('completion-rate');
+            const retentionRateEl = document.getElementById('retention-rate');
+            const peakHoursEl = document.getElementById('peak-hours');
+            
+            if (avgPlaytimeEl) avgPlaytimeEl.textContent = (userBehaviorData.user_metrics.avg_playtime || '200.2') + ' hrs';
+            if (completionRateEl) completionRateEl.textContent = (userBehaviorData.user_metrics.completion_rate || '65') + '%';
+            if (retentionRateEl) retentionRateEl.textContent = (userBehaviorData.user_metrics.retention_rate || '78') + '%';
+            if (peakHoursEl) peakHoursEl.textContent = userBehaviorData.user_metrics.peak_hours || '7-10 PM';
+        }
+    }
+
+    function initializeAllCharts() {
+        // Initialize charts based on active tab
+        if (document.getElementById('userTrendsChart')) {
+            initializeUserTrendsChart();
+        }
+        if (document.getElementById('userGenresChart')) {
+            initializeUserGenresChart();
+        }
+        if (document.getElementById('demographicsChart')) {
+            initializeDemographicsChart();
+        }
+        if (document.getElementById('engagementPatternsChart')) {
+            initializeEngagementPatternsChart();
+        }
+        if (document.getElementById('popularGamesChart')) {
+            initializePopularGamesChart();
+        }
+        if (document.getElementById('genreDistributionChart')) {
+            initializeGenreDistributionChart();
+        }
+        if (document.getElementById('priceDistributionChart')) {
+            initializePriceDistributionChart();
+        }
+        if (document.getElementById('ratingAnalysisChart')) {
+            initializeRatingAnalysisChart();
+        }
+        
+        console.log('✅ All charts initialized successfully');
+    }
+
+    // User Trends Chart
+    function initializeUserTrendsChart() {
+        const ctx = document.getElementById('userTrendsChart');
+        if (!ctx) return;
+
+        if (userCharts.userTrends) {
+            userCharts.userTrends.destroy();
+        }
+
+        const data = userBehaviorData?.activityTrends || {
+            months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+            activeUsers: [12500, 13200, 14500, 15800, 16700, 18900],
+            newUsers: [1200, 1500, 1800, 2100, 1900, 2300],
+            returningUsers: [9800, 10400, 11500, 12500, 13500, 14800]
+        };
+
+        userCharts.userTrends = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: data.months,
+                datasets: [
+                    {
+                        label: 'Active Users',
+                        data: data.activeUsers,
+                        borderColor: 'rgb(59, 130, 246)',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'New Users',
+                        data: data.newUsers,
+                        borderColor: 'rgb(16, 185, 129)',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'Returning Users',
+                        data: data.returningUsers,
+                        borderColor: 'rgb(245, 158, 11)',
+                        backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4
+                    }
+                ]
+            },
+            options: getChartOptions('User Trends')
+        });
+    }
+
+    // User Genres Chart
+    function initializeUserGenresChart() {
+        const ctx = document.getElementById('userGenresChart');
+        if (!ctx) return;
+
+        if (userCharts.userGenres) {
+            userCharts.userGenres.destroy();
+        }
+
+        const data = userBehaviorData?.preferredGenres || {
+            labels: ['Recommended', 'Not Recommended'],
+            data: [84.7, 15.3]
+        };
+
+        userCharts.userGenres = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: data.labels,
+                datasets: [{
+                    data: data.data,
+                    backgroundColor: [
+                        'rgba(16, 185, 129, 0.8)',
+                        'rgba(239, 68, 68, 0.8)'
+                    ],
+                    borderWidth: 2,
+                    borderColor: 'white'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '60%',
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: {
+                            font: { size: 11, weight: '600' },
+                            padding: 15,
+                            usePointStyle: true
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        bodyFont: { size: 12 },
+                        padding: 10,
+                        callbacks: {
+                            label: function(context) {
+                                return `${context.label}: ${context.parsed}%`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Games Charts
+    function initializePopularGamesChart() {
+        const ctx = document.getElementById('popularGamesChart');
+        if (!ctx) return;
+
+        const data = gamesData?.top_games || {
+            labels: ['Bunny e-Shop', 'Dead In Vinland', 'Monster Hunter World', 'WORDLAND 2', 'Monster Roadtrip'],
+            popularity: [95, 92, 90, 88, 85]
+        };
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: data.labels,
+                datasets: [{
+                    label: 'Popularity Score',
+                    data: data.popularity,
+                    backgroundColor: 'rgba(59, 130, 246, 0.8)',
+                    borderColor: 'rgb(59, 130, 246)',
+                    borderWidth: 2,
+                    borderRadius: 8,
+                }]
+            },
+            options: getChartOptions('Popular Games')
+        });
+    }
+
+    function initializeGenreDistributionChart() {
+        const ctx = document.getElementById('genreDistributionChart');
+        if (!ctx) return;
+
+        const data = gamesData?.genre_distribution || {
+            labels: ['Very Positive', 'Positive', 'Mixed', 'Mostly Positive'],
+            data: [35, 25, 20, 20]
+        };
+
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: data.labels,
+                datasets: [{
+                    data: data.data,
+                    backgroundColor: [
+                        'rgba(16, 185, 129, 0.8)',
+                        'rgba(59, 130, 246, 0.8)',
+                        'rgba(245, 158, 11, 0.8)',
+                        'rgba(139, 92, 246, 0.8)'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '60%',
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: {
+                            font: { size: 11, weight: '600' },
+                            padding: 15
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    function initializePriceDistributionChart() {
+        const ctx = document.getElementById('priceDistributionChart');
+        if (!ctx) return;
+
+        const data = gamesData?.price_distribution || {
+            ranges: ['$0-5', '$5-10', '$10-20', '$20-30', '$30-40', '$40+'],
+            counts: [45, 25, 15, 8, 4, 3]
+        };
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: data.ranges,
+                datasets: [{
+                    label: 'Number of Games',
+                    data: data.counts,
+                    backgroundColor: 'rgba(16, 185, 129, 0.8)',
+                    borderColor: 'rgb(16, 185, 129)',
+                    borderWidth: 2,
+                    borderRadius: 8,
+                }]
+            },
+            options: getChartOptions('Price Distribution')
+        });
+    }
+
+    function initializeRatingAnalysisChart() {
+        const ctx = document.getElementById('ratingAnalysisChart');
+        if (!ctx) return;
+
+        const data = gamesData?.rating_analysis || {
+            ranges: ['0-25%', '25-50%', '50-75%', '75-100%'],
+            counts: [10, 20, 40, 30]
+        };
+
+        new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: data.ranges.map(range => `${range} Positive`),
+                datasets: [{
+                    data: data.counts,
+                    backgroundColor: [
+                        'rgba(239, 68, 68, 0.8)',
+                        'rgba(245, 158, 11, 0.8)',
+                        'rgba(59, 130, 246, 0.8)',
+                        'rgba(16, 185, 129, 0.8)'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            font: { size: 11, weight: '600' },
+                            padding: 20
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Helper function for chart options
+    function getChartOptions(title) {
+        return {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'top',
+                    labels: {
+                        font: { size: 12, weight: '600' },
+                        padding: 20
+                    }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    titleFont: { size: 13, weight: '600' },
+                    bodyFont: { size: 12 },
+                    padding: 12
+                }
+            },
+            scales: {
+                x: {
+                    grid: { color: 'rgba(0, 0, 0, 0.1)' },
+                    ticks: { font: { size: 11, weight: '600' } }
+                },
+                y: {
+                    beginAtZero: true,
+                    grid: { color: 'rgba(0, 0, 0, 0.1)' },
+                    ticks: { 
+                        font: { size: 11, weight: '600' },
+                        callback: function(value) {
+                            return value >= 1000 ? (value/1000) + 'k' : value;
+                        }
+                    }
+                }
+            }
+        };
+    }
+
+    // Demographics Chart
+    function initializeDemographicsChart() {
+        const ctx = document.getElementById('demographicsChart');
+        if (!ctx) return;
+
+        if (userCharts.demographics) {
+            userCharts.demographics.destroy();
+        }
+
+        const data = userBehaviorData?.demographics || {
+            ageGroups: ['18-24', '25-34', '35-44', '45-54', '55+'],
+            distribution: [28, 35, 20, 12, 5]
+        };
+
+        userCharts.demographics = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: data.ageGroups,
+                datasets: [{
+                    label: 'User Distribution (%)',
+                    data: data.distribution,
+                    backgroundColor: 'rgba(99, 102, 241, 0.8)',
+                    borderColor: 'rgb(99, 102, 241)',
+                    borderWidth: 2,
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        callbacks: {
+                            label: function(context) {
+                                return `Users: ${context.parsed.y}%`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: { font: { size: 11, weight: '600' } }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        grid: { color: 'rgba(0, 0, 0, 0.1)' },
+                        ticks: { 
+                            font: { size: 11, weight: '600' },
+                            callback: function(value) {
+                                return value + '%';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Engagement Patterns Chart
+    function initializeEngagementPatternsChart() {
+        const ctx = document.getElementById('engagementPatternsChart');
+        if (!ctx) return;
+
+        if (userCharts.engagementPatterns) {
+            userCharts.engagementPatterns.destroy();
+        }
+
+        const data = userBehaviorData?.engagementPatterns || {
+            hours: ['12AM', '3AM', '6AM', '9AM', '12PM', '3PM', '6PM', '9PM'],
+            engagement: [15, 8, 12, 25, 35, 45, 68, 72]
+        };
+
+        userCharts.engagementPatterns = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: data.hours,
+                datasets: [{
+                    label: 'User Engagement (%)',
+                    data: data.engagement,
+                    borderColor: 'rgb(236, 72, 153)',
+                    backgroundColor: 'rgba(236, 72, 153, 0.1)',
+                    borderWidth: 4,
+                    fill: true,
+                    tension: 0.4,
+                    pointBackgroundColor: 'rgb(236, 72, 153)',
+                    pointBorderColor: 'white',
+                    pointBorderWidth: 2,
+                    pointRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        callbacks: {
+                            label: function(context) {
+                                return `Engagement: ${context.parsed.y}%`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { color: 'rgba(0, 0, 0, 0.1)' },
+                        ticks: { font: { size: 11, weight: '600' } }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        grid: { color: 'rgba(0, 0, 0, 0.1)' },
+                        ticks: { 
+                            font: { size: 11, weight: '600' },
+                            callback: function(value) {
+                                return value + '%';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    function startProfessionalUpdates() {
+        document.getElementById('last-updated').textContent = new Date().toLocaleTimeString();
+        
+        setInterval(() => {
+            document.getElementById('last-updated').textContent = new Date().toLocaleTimeString();
+        }, 30000);
+    }
+
+    function refreshAnalyticsData() {
+        const btn = event?.target || document.querySelector('button[onclick="refreshAnalyticsData()"]');
+        const originalHTML = btn.innerHTML;
+        
+        btn.innerHTML = `
+            <svg class="w-6 h-6 mr-3 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+            </svg>
+            Refreshing...
+        `;
+        btn.disabled = true;
+        
+        setTimeout(async () => {
+            await loadAllData();
+            initializeAllCharts();
+            updateStatsCards();
+            btn.innerHTML = originalHTML;
+            btn.disabled = false;
+            showProfessionalNotification('✅ Analytics data refreshed successfully!', 'success');
+        }, 2000);
+    }
+
+    function showProfessionalNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        const styles = {
+            success: 'bg-gradient-to-r from-green-500 to-emerald-600',
+            error: 'bg-gradient-to-r from-red-500 to-rose-600', 
+            warning: 'bg-gradient-to-r from-yellow-500 to-amber-600',
+            info: 'bg-gradient-to-r from-blue-500 to-cyan-600'
+        };
+        
+        notification.className = `fixed top-6 right-6 p-4 rounded-xl shadow-2xl text-white ${styles[type]} z-50 max-w-md transform translate-x-full transition-transform duration-500 backdrop-blur-sm`;
+        notification.innerHTML = `
+            <div class="flex items-center">
+                <div class="w-8 h-8 bg-white bg-opacity-20 rounded-full flex items-center justify-center mr-3">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                </div>
+                <span class="font-semibold">${message}</span>
+            </div>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => notification.classList.remove('translate-x-full'), 100);
+        
+        setTimeout(() => {
+            notification.classList.add('translate-x-full');
+            setTimeout(() => notification.remove(), 500);
+        }, 4000);
+    }
+
+    function loadFallbackData() {
+        console.log('🔄 Loading fallback data...');
+        userBehaviorData = {
+            activityTrends: {
+                months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                activeUsers: [12500, 13200, 14500, 15800, 16700, 18900],
+                newUsers: [1200, 1500, 1800, 2100, 1900, 2300],
+                returningUsers: [9800, 10400, 11500, 12500, 13500, 14800]
+            },
+            preferredGenres: {
+                labels: ['Action', 'RPG', 'Strategy', 'Sports', 'Casual', 'Simulation'],
+                data: [35, 25, 15, 10, 8, 7]
+            },
+            demographics: {
+                ageGroups: ['18-24', '25-34', '35-44', '45-54', '55+'],
+                distribution: [28, 35, 20, 12, 5]
+            },
+            engagementPatterns: {
+                hours: ['12AM', '3AM', '6AM', '9AM', '12PM', '3PM', '6PM', '9PM'],
+                engagement: [15, 8, 12, 25, 35, 45, 68, 72]
+            }
+        };
+
+        gamesData = {
+            top_games: {
+                labels: ['Cyberpunk 2077', 'Elden Ring', 'Baldur\'s Gate 3', 'Counter-Strike 2', 'Apex Legends'],
+                popularity: [950, 920, 890, 870, 840]
+            },
+            genre_distribution: {
+                labels: ['Action', 'Adventure', 'RPG', 'Strategy', 'Simulation', 'Sports'],
+                data: [25, 18, 15, 12, 10, 8]
+            },
+            price_distribution: {
+                ranges: ['$0-10', '$10-20', '$20-30', '$30-40', '$40+'],
+                counts: [35, 25, 20, 12, 8]
+            },
+            rating_analysis: {
+                ranges: ['1-2', '2-3', '3-4', '4-5'],
+                counts: [5, 15, 45, 35]
+            }
+        };
+    }
+
+    // Handle demographic filter changes
+    document.addEventListener('DOMContentLoaded', function() {
+        const demographicFilter = document.getElementById('demographicFilter');
+        if (demographicFilter) {
+            demographicFilter.addEventListener('change', function() {
+                updateDemographicsChart(this.value);
+            });
+        }
+    });
+
+    function updateDemographicsChart(filterType) {
+        let data;
+        
+        switch(filterType) {
+            case 'region':
+                data = {
+                    labels: ['North America', 'Europe', 'Asia', 'South America', 'Oceania'],
+                    distribution: [45, 30, 15, 7, 3]
+                };
+                break;
+            case 'engagement':
+                data = {
+                    labels: ['Casual', 'Regular', 'Hardcore', 'Professional'],
+                    distribution: [40, 35, 20, 5]
+                };
+                break;
+            default: // age
+                data = userBehaviorData?.demographics || {
+                    ageGroups: ['18-24', '25-34', '35-44', '45-54', '55+'],
+                    distribution: [28, 35, 20, 12, 5]
+                };
+        }
+        
+        if (userCharts.demographics) {
+            userCharts.demographics.data.labels = data.labels || data.ageGroups;
+            userCharts.demographics.data.datasets[0].data = data.distribution;
+            userCharts.demographics.update();
+        }
+    }
+</script>
+{% endblock %}

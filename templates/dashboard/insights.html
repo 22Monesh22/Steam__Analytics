@@ -1,0 +1,766 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Dashboard - Steam Analytics Platform{% endblock %}
+
+{% block extra_css %}
+<style>
+    .gradient-bg {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    .premium-stat-card {
+        background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.95) 100%);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255,255,255,0.2);
+        box-shadow: 
+            0 8px 32px rgba(0, 0, 0, 0.1),
+            inset 0 1px 0 rgba(255,255,255,0.6);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .premium-stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+        transition: left 0.6s;
+    }
+    
+    .premium-stat-card:hover::before {
+        left: 100%;
+    }
+    
+    .premium-stat-card:hover {
+        transform: translateY(-8px) scale(1.02);
+        box-shadow: 
+            0 20px 40px rgba(0, 0, 0, 0.15),
+            0 8px 16px rgba(0, 0, 0, 0.1),
+            inset 0 1px 0 rgba(255,255,255,0.8);
+    }
+    
+    .pulse-dot {
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0%, 100% { 
+            opacity: 1; 
+            transform: scale(1);
+        }
+        50% { 
+            opacity: 0.7; 
+            transform: scale(1.1);
+        }
+    }
+    
+    .loading-shimmer {
+        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+        background-size: 200% 100%;
+        animation: shimmer 2s infinite;
+    }
+    
+    @keyframes shimmer {
+        0% { background-position: -200% 0; }
+        100% { background-position: 200% 0; }
+    }
+    
+    .fade-in {
+        animation: fadeInUp 0.8s ease-out;
+    }
+    
+    @keyframes fadeInUp {
+        from { 
+            opacity: 0; 
+            transform: translateY(30px); 
+        }
+        to { 
+            opacity: 1; 
+            transform: translateY(0); 
+        }
+    }
+    
+    .premium-icon-container {
+        background: linear-gradient(135deg, var(--start-color), var(--end-color));
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        transition: all 0.3s ease;
+    }
+    
+    .premium-icon-container:hover {
+        transform: scale(1.1) rotate(5deg);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    }
+    
+    .glow-border {
+        position: relative;
+        border: 1px solid transparent;
+        background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+        backdrop-filter: blur(10px);
+    }
+    
+    .glow-border::before {
+        content: '';
+        position: absolute;
+        top: -2px;
+        left: -2px;
+        right: -2px;
+        bottom: -2px;
+        background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #feca57, #ff9ff3, #54a0ff);
+        background-size: 400% 400%;
+        border-radius: inherit;
+        z-index: -1;
+        animation: glowing 3s ease-in-out infinite;
+        opacity: 0.7;
+    }
+    
+    @keyframes glowing {
+        0%, 100% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+    }
+    
+    .hover-lift {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .hover-lift:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    }
+    
+    .gradient-text {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+    }
+    
+    @media (max-width: 768px) {
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+    
+    .floating-element {
+        animation: float 6s ease-in-out infinite;
+    }
+    
+    @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Enhanced Welcome Section -->
+        <div class="mb-12 fade-in">
+            <div class="glow-border rounded-3xl p-8 mb-8 bg-white/80 backdrop-blur-sm">
+                <div class="flex flex-col lg:flex-row items-center justify-between">
+                    <div class="flex-1 text-center lg:text-left">
+                        <h1 class="text-5xl lg:text-6xl font-bold gradient-text mb-4" id="welcome-message">
+                            {% if current_user.first_name %}
+                                Welcome back, {{ current_user.first_name }}! <span class="text-4xl">👋</span>
+                            {% else %}
+                                Welcome to Steam Analytics! <span class="text-4xl">🚀</span>
+                            {% endif %}
+                        </h1>
+                        <p class="text-xl text-gray-600 mb-6 max-w-3xl" id="dashboard-subtitle">
+                            Advanced analytics platform processing 50K+ Steam games, 14M+ users, and 41M+ reviews in real-time
+                        </p>
+                        <div class="flex flex-wrap justify-center lg:justify-start gap-3" id="user-stats">
+                            <span class="inline-flex items-center px-4 py-2 rounded-2xl text-sm font-semibold bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg">
+                                <span class="w-3 h-3 bg-white rounded-full mr-2 pulse-dot"></span>
+                                Real-time Analytics
+                            </span>
+                            <span class="inline-flex items-center px-4 py-2 rounded-2xl text-sm font-semibold bg-gradient-to-r from-green-500 to-green-600 text-white shadow-lg">
+                                <span class="w-3 h-3 bg-white rounded-full mr-2"></span>
+                                Live Data Streams
+                            </span>
+                            <span class="inline-flex items-center px-4 py-2 rounded-2xl text-sm font-semibold bg-gradient-to-r from-purple-500 to-purple-600 text-white shadow-lg">
+                                <span class="w-3 h-3 bg-white rounded-full mr-2"></span>
+                                AI-Powered Insights
+                            </span>
+                        </div>
+                    </div>
+                    <div class="mt-6 lg:mt-0 lg:ml-8">
+                        <div class="text-center lg:text-right p-6 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 text-white shadow-2xl">
+                            <p class="text-sm opacity-90 mb-1">Last Updated</p>
+                            <p class="text-2xl font-bold" id="last-updated">Just now</p>
+                            <div class="mt-3 flex items-center justify-center lg:justify-end space-x-2">
+                                <div class="w-3 h-3 bg-green-400 rounded-full pulse-dot"></div>
+                                <span class="text-sm">System Live</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Premium Real-time Metrics Grid -->
+        <div class="stats-grid mb-12">
+            <!-- Total Games Card -->
+            <div class="premium-stat-card rounded-3xl p-8 fade-in" style="--start-color: #3B82F6; --end-color: #1D4ED8;">
+                <div class="flex items-center justify-between mb-6">
+                    <div class="premium-icon-container w-16 h-16 rounded-2xl flex items-center justify-center">
+                        <svg class="w-8 h-8 text-white" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 2L20 8V21H4V8L12 2Z" fill="white" stroke="white" stroke-width="1.5"/>
+                            <path d="M8 13L10 15L12 12L14 14L16 11" stroke="rgba(255,255,255,0.9)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <div class="text-right">
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-blue-500/20 text-blue-700 backdrop-blur-sm">
+                            <span class="w-2 h-2 bg-blue-500 rounded-full mr-2 pulse-dot"></span>
+                            LIVE
+                        </span>
+                    </div>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-600 mb-3">Total Games Analyzed</h3>
+                <div class="flex items-baseline">
+                    <p class="text-4xl font-bold text-gray-900" id="total-games">
+                        <span class="loading-shimmer rounded w-24 h-10 inline-block"></span>
+                    </p>
+                </div>
+                <p class="text-sm text-gray-500 mt-3">From Steam platform database</p>
+            </div>
+
+            <!-- Total Users Card -->
+            <div class="premium-stat-card rounded-3xl p-8 fade-in" style="animation-delay: 0.1s; --start-color: #10B981; --end-color: #059669;">
+                <div class="flex items-center justify-between mb-6">
+                    <div class="premium-icon-container w-16 h-16 rounded-2xl flex items-center justify-center">
+                        <svg class="w-8 h-8 text-white" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="8" cy="6" r="3" fill="white" stroke="white" stroke-width="1.5"/>
+                            <circle cx="16" cy="6" r="3" fill="white" stroke="white" stroke-width="1.5"/>
+                            <path d="M12 16C9 16 6 18 6 21H18C18 18 15 16 12 16Z" fill="white" stroke="white" stroke-width="1.5"/>
+                            <path d="M10 9L14 9" stroke="rgba(255,255,255,0.9)" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+                    <div class="text-right">
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-green-500/20 text-green-700 backdrop-blur-sm">
+                            <span class="w-2 h-2 bg-green-500 rounded-full mr-2 pulse-dot"></span>
+                            LIVE
+                        </span>
+                    </div>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-600 mb-3">Total Users</h3>
+                <div class="flex items-baseline">
+                    <p class="text-4xl font-bold text-gray-900" id="total-users">
+                        <span class="loading-shimmer rounded w-24 h-10 inline-block"></span>
+                    </p>
+                </div>
+                <p class="text-sm text-gray-500 mt-3">Active Steam users analyzed</p>
+            </div>
+
+            <!-- Total Reviews Card -->
+            <div class="premium-stat-card rounded-3xl p-8 fade-in" style="animation-delay: 0.2s; --start-color: #8B5CF6; --end-color: #7C3AED;">
+                <div class="flex items-center justify-between mb-6">
+                    <div class="premium-icon-container w-16 h-16 rounded-2xl flex items-center justify-center">
+                        <svg class="w-8 h-8 text-white" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" 
+                                  stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <div class="text-right">
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-purple-500/20 text-purple-700 backdrop-blur-sm">
+                            <span class="w-2 h-2 bg-purple-500 rounded-full mr-2 pulse-dot"></span>
+                            LIVE
+                        </span>
+                    </div>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-600 mb-3">Total Reviews</h3>
+                <div class="flex items-baseline">
+                    <p class="text-4xl font-bold text-gray-900" id="total-reviews">
+                        <span class="loading-shimmer rounded w-24 h-10 inline-block"></span>
+                    </p>
+                </div>
+                <p class="text-sm text-gray-500 mt-3">User reviews processed</p>
+            </div>
+
+            <!-- Average Rating Card -->
+            <div class="premium-stat-card rounded-3xl p-8 fade-in" style="animation-delay: 0.3s; --start-color: #F59E0B; --end-color: #D97706;">
+                <div class="flex items-center justify-between mb-6">
+                    <div class="premium-icon-container w-16 h-16 rounded-2xl flex items-center justify-center">
+                        <span class="text-white text-2xl">⭐</span>
+                    </div>
+                    <div class="text-right">
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-orange-500/20 text-orange-700 backdrop-blur-sm">
+                            <span class="w-2 h-2 bg-orange-500 rounded-full mr-2 pulse-dot"></span>
+                            LIVE
+                        </span>
+                    </div>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-600 mb-3">Average Rating</h3>
+                <div class="flex items-baseline">
+                    <p class="text-4xl font-bold text-gray-900" id="avg-rating">
+                        <span class="loading-shimmer rounded w-20 h-10 inline-block"></span>
+                    </p>
+                </div>
+                <p class="text-sm text-gray-500 mt-3">Across all reviewed games</p>
+            </div>
+        </div>
+
+        <!-- Data Pipeline Status -->
+        <div class="glow-border rounded-3xl p-8 mb-12 bg-white/80 backdrop-blur-sm fade-in">
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-8">
+                <div class="mb-6 lg:mb-0">
+                    <h2 class="text-3xl font-bold gradient-text mb-3">🔗 Real-time Data Pipeline</h2>
+                    <p class="text-lg text-gray-600 max-w-2xl">Connected to Steam's massive gaming dataset with live analytics and AI-powered processing</p>
+                </div>
+                <div class="flex space-x-4">
+                    <button onclick="refreshAllData()" class="flex items-center px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-2xl hover:from-blue-600 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl hover-lift">
+                        <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                        </svg>
+                        Refresh Data
+                    </button>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="data-connectivity">
+                <div class="bg-gradient-to-br from-green-50 to-emerald-100 rounded-2xl p-6 border-2 border-green-200 shadow-lg hover-lift">
+                    <div class="flex items-center mb-4">
+                        <div class="w-4 h-4 bg-green-500 rounded-full mr-3 pulse-dot"></div>
+                        <span class="text-xl font-bold text-green-900">Games Database</span>
+                    </div>
+                    <p class="text-green-700 mb-4" id="games-status">Loading 50,872 games...</p>
+                    <div class="w-full bg-green-200 rounded-full h-3">
+                        <div class="bg-gradient-to-r from-green-500 to-emerald-500 h-3 rounded-full transition-all duration-1000" style="width: 100%"></div>
+                    </div>
+                </div>
+                
+                <div class="bg-gradient-to-br from-blue-50 to-cyan-100 rounded-2xl p-6 border-2 border-blue-200 shadow-lg hover-lift">
+                    <div class="flex items-center mb-4">
+                        <div class="w-4 h-4 bg-blue-500 rounded-full mr-3 pulse-dot"></div>
+                        <span class="text-xl font-bold text-blue-900">Users Database</span>
+                    </div>
+                    <p class="text-blue-700 mb-4" id="users-status">Loading 14M+ users...</p>
+                    <div class="w-full bg-blue-200 rounded-full h-3">
+                        <div class="bg-gradient-to-r from-blue-500 to-cyan-500 h-3 rounded-full transition-all duration-1000" style="width: 100%"></div>
+                    </div>
+                </div>
+                
+                <div class="bg-gradient-to-br from-purple-50 to-violet-100 rounded-2xl p-6 border-2 border-purple-200 shadow-lg hover-lift">
+                    <div class="flex items-center mb-4">
+                        <div class="w-4 h-4 bg-purple-500 rounded-full mr-3 pulse-dot"></div>
+                        <span class="text-xl font-bold text-purple-900">Reviews Database</span>
+                    </div>
+                    <p class="text-purple-700 mb-4" id="reviews-status">Loading 41M+ reviews...</p>
+                    <div class="w-full bg-purple-200 rounded-full h-3">
+                        <div class="bg-gradient-to-r from-purple-500 to-violet-500 h-3 rounded-full transition-all duration-1000" style="width: 100%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Grid -->
+        <div class="grid grid-cols-1 xl:grid-cols-4 gap-8">
+            <!-- Left Content (3/4 width) -->
+            <div class="xl:col-span-3 space-y-8">
+                <!-- Top Performing Games -->
+                <div class="glow-border rounded-3xl p-8 bg-white/80 backdrop-blur-sm fade-in">
+                    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-8">
+                        <div>
+                            <h2 class="text-3xl font-bold gradient-text mb-2">🎮 Top Performing Games</h2>
+                            <p class="text-lg text-gray-600">Based on user ratings, engagement metrics, and AI analysis</p>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="top-games-list">
+                        <!-- Games will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- Analytics Hub -->
+                <div class="glow-border rounded-3xl p-8 bg-gradient-to-br from-blue-500/10 to-purple-600/10 backdrop-blur-sm fade-in">
+                    <h2 class="text-3xl font-bold gradient-text mb-8 text-center">🚀 Analytics Hub</h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <a href="{{ url_for('analytics.index') }}" class="group bg-white/80 backdrop-blur-sm rounded-2xl p-6 border-2 border-blue-200 hover:border-blue-400 transition-all duration-300 hover-lift">
+                            <div class="flex items-center mb-4">
+                                <div class="premium-icon-container w-12 h-12 rounded-xl flex items-center justify-center mr-4" style="--start-color: #3B82F6; --end-color: #1D4ED8;">
+                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                                    </svg>
+                                </div>
+                                <h3 class="text-xl font-bold text-gray-900">Advanced Analytics</h3>
+                            </div>
+                            <p class="text-gray-600 mb-4">Deep dive into comprehensive game performance metrics and trends</p>
+                            <div class="flex items-center text-blue-600 font-semibold">
+                                <span>Explore Analytics</span>
+                                <svg class="w-5 h-5 ml-2 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                </svg>
+                            </div>
+                        </a>
+
+                        <a href="{{ url_for('ai.steam_analytics') }}" class="group bg-white/80 backdrop-blur-sm rounded-2xl p-6 border-2 border-purple-200 hover:border-purple-400 transition-all duration-300 hover-lift">
+                            <div class="flex items-center mb-4">
+                                <div class="premium-icon-container w-12 h-12 rounded-xl flex items-center justify-center mr-4" style="--start-color: #8B5CF6; --end-color: #7C3AED;">
+                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                    </svg>
+                                </div>
+                                <h3 class="text-xl font-bold text-gray-900">AI Insights</h3>
+                            </div>
+                            <p class="text-gray-600 mb-4">Smart analysis, predictive trends, and machine learning insights</p>
+                            <div class="flex items-center text-purple-600 font-semibold">
+                                <span>View AI Insights</span>
+                                <svg class="w-5 h-5 ml-2 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                </svg>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Sidebar (1/4 width) -->
+            <div class="space-y-8">
+                <!-- Quick Actions -->
+                <div class="glow-border rounded-3xl p-6 bg-white/80 backdrop-blur-sm fade-in">
+                    <h2 class="text-2xl font-bold gradient-text mb-6">⚡ Quick Actions</h2>
+                    <div class="space-y-4">
+                        <button onclick="showGameSearch()" class="w-full group bg-gradient-to-r from-green-50 to-emerald-100 rounded-xl p-4 border-2 border-green-200 hover:border-green-400 transition-all duration-300 hover-lift text-left">
+                            <div class="flex items-center">
+                                <div class="premium-icon-container w-10 h-10 rounded-lg flex items-center justify-center mr-3" style="--start-color: #10B981; --end-color: #059669;">
+                                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 class="font-semibold text-gray-900">Search Games</h3>
+                                    <p class="text-sm text-gray-600">Find by name or genre</p>
+                                </div>
+                            </div>
+                        </button>
+
+                        <button onclick="showDataExport()" class="w-full group bg-gradient-to-r from-orange-50 to-amber-100 rounded-xl p-4 border-2 border-orange-200 hover:border-orange-400 transition-all duration-300 hover-lift text-left">
+                            <div class="flex items-center">
+                                <div class="premium-icon-container w-10 h-10 rounded-lg flex items-center justify-center mr-3" style="--start-color: #F59E0B; --end-color: #D97706;">
+                                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 class="font-semibold text-gray-900">Export Data</h3>
+                                    <p class="text-sm text-gray-600">Download reports</p>
+                                </div>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- System Status -->
+                <div class="glow-border rounded-3xl p-6 bg-white/80 backdrop-blur-sm fade-in">
+                    <h2 class="text-2xl font-bold gradient-text mb-6">🔧 System Status</h2>
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-green-50 to-emerald-100 border border-green-200">
+                            <div class="flex items-center">
+                                <div class="w-3 h-3 bg-green-500 rounded-full mr-3 pulse-dot"></div>
+                                <span class="font-semibold text-green-900">Data Pipeline</span>
+                            </div>
+                            <span class="text-sm font-medium text-green-700">Operational</span>
+                        </div>
+                        <div class="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-blue-50 to-cyan-100 border border-blue-200">
+                            <div class="flex items-center">
+                                <div class="w-3 h-3 bg-blue-500 rounded-full mr-3 pulse-dot"></div>
+                                <span class="font-semibold text-blue-900">Analytics Engine</span>
+                            </div>
+                            <span class="text-sm font-medium text-blue-700">Active</span>
+                        </div>
+                        <div class="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-purple-50 to-violet-100 border border-purple-200">
+                            <div class="flex items-center">
+                                <div class="w-3 h-3 bg-purple-500 rounded-full mr-3 pulse-dot"></div>
+                                <span class="font-semibold text-purple-900">AI Processing</span>
+                            </div>
+                            <span class="text-sm font-medium text-purple-700">Running</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Platform Overview -->
+                <div class="glow-border rounded-3xl p-6 bg-gradient-to-br from-blue-500/10 to-purple-600/10 backdrop-blur-sm fade-in">
+                    <h2 class="text-2xl font-bold gradient-text mb-4">💎 Platform Overview</h2>
+                    <div class="space-y-3 text-sm">
+                        <p class="text-gray-700"><strong>Steam Analytics Platform</strong> delivers enterprise-grade insights for gaming industry professionals.</p>
+                        <div class="space-y-2">
+                            <div class="flex items-center">
+                                <div class="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
+                                <span class="text-gray-600">50K+ Steam games analyzed</span>
+                            </div>
+                            <div class="flex items-center">
+                                <div class="w-2 h-2 bg-green-500 rounded-full mr-3"></div>
+                                <span class="text-gray-600">14M+ user profiles processed</span>
+                            </div>
+                            <div class="flex items-center">
+                                <div class="w-2 h-2 bg-purple-500 rounded-full mr-3"></div>
+                                <span class="text-gray-600">41M+ reviews evaluated</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Initialize dashboard when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        initializeDashboard();
+        startRealTimeUpdates();
+    });
+
+    // Main initialization function
+    async function initializeDashboard() {
+        await loadDashboardMetrics();
+        await loadTopGames();
+        updateWelcomeMessage();
+    }
+
+    // Real-time updates simulation
+    function startRealTimeUpdates() {
+        setInterval(() => {
+            updateWelcomeMessage();
+            document.getElementById('last-updated').textContent = new Date().toLocaleTimeString();
+        }, 30000); // Update every 30 seconds
+    }
+
+    // Update welcome message with time-based greeting
+    function updateWelcomeMessage() {
+        const hour = new Date().getHours();
+        let greeting = "Good morning";
+        if (hour >= 12 && hour < 18) greeting = "Good afternoon";
+        if (hour >= 18) greeting = "Good evening";
+
+        const subtitle = document.getElementById('dashboard-subtitle');
+        subtitle.textContent = `${greeting}! Processing Steam's massive gaming dataset in real-time with AI-powered analytics.`;
+    }
+
+    // Load dashboard metrics from backend
+    async function loadDashboardMetrics() {
+        try {
+            // Simulate API call delay
+            await new Promise(resolve => setTimeout(resolve, 1500));
+            
+            // Mock data for demonstration
+            const mockStats = {
+                total_games: 50872,
+                total_users: 14306064,
+                total_reviews: 41154794,
+                average_rating: 4.2
+            };
+            
+            // Update metric cards with proper formatting
+            updateMetricCard('total-games', mockStats.total_games);
+            updateMetricCard('total-users', mockStats.total_users);
+            updateMetricCard('total-reviews', mockStats.total_reviews);
+            updateMetricCard('avg-rating', mockStats.average_rating.toFixed(1));
+            
+            // Update connectivity status
+            document.getElementById('games-status').textContent = `Connected to ${mockStats.total_games.toLocaleString()} games`;
+            document.getElementById('users-status').textContent = `Connected to ${formatNumber(mockStats.total_users)} users`;
+            document.getElementById('reviews-status').textContent = `Connected to ${formatNumber(mockStats.total_reviews)} reviews`;
+            
+            hideLoadingState();
+            
+        } catch (error) {
+            console.error('Error loading dashboard metrics:', error);
+            loadFallbackData();
+        }
+    }
+
+    // Format large numbers
+    function formatNumber(num) {
+        if (num >= 1000000) {
+            return (num / 1000000).toFixed(1) + 'M';
+        } else if (num >= 1000) {
+            return (num / 1000).toFixed(1) + 'K';
+        }
+        return num.toLocaleString();
+    }
+
+    // Update individual metric card
+    function updateMetricCard(elementId, value) {
+        const element = document.getElementById(elementId);
+        if (value && value !== 0) {
+            if (typeof value === 'number' && value >= 1000) {
+                element.innerHTML = `<span class="text-4xl font-bold text-gray-900">${formatNumber(value)}</span>`;
+            } else {
+                element.innerHTML = `<span class="text-4xl font-bold text-gray-900">${value}</span>`;
+            }
+        }
+    }
+
+    // Hide loading state
+    function hideLoadingState() {
+        const loadingElements = document.querySelectorAll('.loading-shimmer');
+        loadingElements.forEach(el => el.remove());
+    }
+
+    // Load fallback data if API fails
+    function loadFallbackData() {
+        const fallbackData = {
+            'total-games': 50872,
+            'total-users': 14306064,
+            'total-reviews': 41154794,
+            'avg-rating': 4.2
+        };
+        
+        Object.keys(fallbackData).forEach(key => {
+            updateMetricCard(key, fallbackData[key]);
+        });
+        
+        hideLoadingState();
+    }
+
+    // Load top games with sample data
+    async function loadTopGames() {
+        try {
+            // Sample top games data
+            const sampleGames = [
+                {
+                    name: 'Cyberpunk 2077',
+                    genres: 'RPG, Action, Open World',
+                    rating: 4.5,
+                    reviews: '500K+',
+                    popularity: 'Very High',
+                    color: 'from-blue-500 to-purple-600'
+                },
+                {
+                    name: 'Elden Ring',
+                    genres: 'RPG, Souls-like, Adventure',
+                    rating: 4.8,
+                    reviews: '800K+',
+                    popularity: 'Very High',
+                    color: 'from-amber-500 to-orange-600'
+                },
+                {
+                    name: 'Baldur\'s Gate 3',
+                    genres: 'RPG, Strategy, Story Rich',
+                    rating: 4.9,
+                    reviews: '400K+',
+                    popularity: 'Very High',
+                    color: 'from-emerald-500 to-green-600'
+                },
+                {
+                    name: 'Counter-Strike 2',
+                    genres: 'FPS, Action, Competitive',
+                    rating: 4.2,
+                    reviews: '2M+',
+                    popularity: 'High',
+                    color: 'from-red-500 to-pink-600'
+                }
+            ];
+            
+            updateTopGamesList(sampleGames);
+        } catch (error) {
+            console.error('Error loading top games:', error);
+        }
+    }
+
+    // Update top games list
+    function updateTopGamesList(games) {
+        const container = document.getElementById('top-games-list');
+        
+        container.innerHTML = games.map((game, index) => `
+            <div class="game-card bg-white/80 backdrop-blur-sm rounded-2xl p-6 border-2 border-gray-200 hover:border-blue-300 transition-all duration-300 hover-lift">
+                <div class="flex items-start mb-4">
+                    <div class="w-14 h-14 bg-gradient-to-br ${game.color} rounded-2xl flex items-center justify-center text-white font-bold text-lg shadow-lg">
+                        ${index + 1}
+                    </div>
+                    <div class="ml-4 flex-1">
+                        <h4 class="font-bold text-gray-900 text-lg leading-tight">${game.name}</h4>
+                        <p class="text-sm text-gray-500 mt-1">${game.genres}</p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3 mb-4">
+                    <div class="text-center p-3 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl">
+                        <p class="font-semibold text-blue-700 text-sm">Rating</p>
+                        <p class="text-blue-900 font-bold text-lg">${game.rating}/5.0</p>
+                    </div>
+                    <div class="text-center p-3 bg-gradient-to-br from-green-50 to-green-100 rounded-xl">
+                        <p class="font-semibold text-green-700 text-sm">Reviews</p>
+                        <p class="text-green-900 font-bold text-lg">${game.reviews}</p>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-gradient-to-r from-purple-500 to-purple-600 text-white shadow-md">
+                        ${game.popularity}
+                    </span>
+                    <button onclick="viewGameDetails('${game.name}')" class="text-blue-600 hover:text-blue-500 font-semibold text-sm flex items-center">
+                        View Details
+                        <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // Refresh all data
+    async function refreshAllData() {
+        showNotification('🔄 Refreshing dashboard data...', 'info');
+        await loadDashboardMetrics();
+        await loadTopGames();
+        showNotification('✅ Dashboard updated successfully!', 'success');
+    }
+
+    // Show game search
+    function showGameSearch() {
+        showNotification('🔍 Game search feature coming soon!', 'info');
+    }
+
+    // Show data export
+    function showDataExport() {
+        showNotification('📊 Data export feature coming soon!', 'info');
+    }
+
+    // View game details
+    function viewGameDetails(gameName) {
+        showNotification(`🎮 Loading details for ${gameName}...`, 'info');
+    }
+
+    // Enhanced notification system
+    function showNotification(message, type = 'info') {
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.className = `fixed top-4 right-4 z-50 p-4 rounded-2xl shadow-2xl backdrop-blur-sm border-2 transform transition-all duration-300 ${
+            type === 'success' ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white border-green-400' :
+            type === 'info' ? 'bg-gradient-to-r from-blue-500 to-cyan-600 text-white border-blue-400' :
+            'bg-gradient-to-r from-amber-500 to-orange-600 text-white border-amber-400'
+        }`;
+        
+        notification.innerHTML = `
+            <div class="flex items-center">
+                <span class="text-lg mr-3">${message.split(' ')[0]}</span>
+                <span class="font-semibold">${message.split(' ').slice(1).join(' ')}</span>
+            </div>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // Remove notification after 3 seconds
+        setTimeout(() => {
+            notification.style.transform = 'translateX(100%)';
+            setTimeout(() => {
+                document.body.removeChild(notification);
+            }, 300);
+        }, 3000);
+    }
+</script>
+{% endblock %}

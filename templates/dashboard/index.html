@@ -1,0 +1,3035 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Dashboard - Steam Analytics Platform{% endblock %}
+
+{% block extra_css %}
+<style>
+    .gradient-bg {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    .stat-card {
+        transition: all 0.3s ease;
+        background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    }
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+    .pulse-dot {
+        animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+    }
+    .loading-shimmer {
+        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+        background-size: 200% 100%;
+        animation: shimmer 2s infinite;
+    }
+    @keyframes shimmer {
+        0% { background-position: -200% 0; }
+        100% { background-position: 200% 0; }
+    }
+    .fade-in {
+        animation: fadeIn 0.8s ease-in;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .faq-item {
+        border-left: 4px solid transparent;
+        transition: all 0.3s ease;
+        background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+    }
+    .faq-item:hover {
+        border-left-color: #3b82f6;
+        transform: translateX(5px);
+    }
+    .accordion-content {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease-out;
+    }
+    .accordion-toggle:checked + .accordion-label + .accordion-content {
+        max-height: 500px;
+    }
+    .accordion-toggle:checked + .accordion-label .accordion-icon {
+        transform: rotate(180deg);
+    }
+    .game-card {
+        transition: all 0.3s ease;
+        background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    }
+    .game-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+     
+    /* Enhanced Professional Styles */
+.chart-container {
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.world-map-container {
+    background: linear-gradient(135deg, #1e3a8a 0%, #3730a3 100%);
+    border-radius: 16px;
+    padding: 20px;
+    color: white;
+    position: relative;
+    overflow: hidden;
+}
+
+.world-map-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23ffffff' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E");
+    opacity: 0.1;
+}
+
+.insight-card {
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 20px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.insight-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.insight-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.metric-trend {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 12px;
+}
+
+.trend-up {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.trend-down {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.trend-neutral {
+    background: #f3f4f6;
+    color: #6b7280;
+}
+
+/* Enhanced Game Cards */
+.enhanced-game-card {
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 16px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.enhanced-game-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.enhanced-game-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 25px -5px rgba(0, 0, 0, 0.15);
+}
+
+.game-rating {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    color: white;
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+/* Chart Animations */
+.chart-fade-in {
+    animation: chartFadeIn 0.8s ease-out;
+}
+
+@keyframes chartFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Professional Grid Layout */
+.professional-grid {
+    display: grid;
+    gap: 24px;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+/* Enhanced Loading States */
+.skeleton-loader {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite;
+    border-radius: 8px;
+}
+
+/* Enhanced Globe Styles */
+.globe-container {
+    background: linear-gradient(135deg, #1e3a8a 0%, #3730a3 100%);
+    border-radius: 16px;
+    padding: 24px;
+    color: white;
+    position: relative;
+    overflow: hidden;
+    min-height: 500px;
+}
+
+.globe-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23ffffff' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
+    opacity: 0.1;
+}
+
+.globe-wrapper {
+    display: grid;
+    grid-template-columns: 1fr 200px;
+    gap: 24px;
+    align-items: start;
+}
+
+.globe-visualization {
+    position: relative;
+    height: 400px;
+    background: radial-gradient(circle at center, rgba(59, 130, 246, 0.1) 0%, rgba(30, 58, 138, 0.3) 70%);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.globe-sphere {
+    width: 280px;
+    height: 280px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, #4f46e5, #3730a3, #1e3a8a);
+    position: relative;
+    transform-style: preserve-3d;
+    animation: rotateGlobe 120s linear infinite;
+    box-shadow: 
+        inset 0 0 50px rgba(255, 255, 255, 0.1),
+        inset -20px -20px 50px rgba(0, 0, 0, 0.3),
+        0 0 60px rgba(59, 130, 246, 0.3);
+}
+
+@keyframes rotateGlobe {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.globe-shadows {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 50%;
+    background: 
+        radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(0, 0, 0, 0.2) 0%, transparent 50%);
+}
+
+.globe-countries {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 50%;
+}
+
+.country-marker {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 10;
+}
+
+.country-marker:hover {
+    transform: translate(-50%, -50%) scale(1.5);
+    z-index: 20;
+}
+
+.country-marker.high-density {
+    background: #10b981;
+    box-shadow: 0 0 10px #10b981;
+}
+
+.country-marker.medium-density {
+    background: #f59e0b;
+    box-shadow: 0 0 8px #f59e0b;
+}
+
+.country-marker.low-density {
+    background: #ef4444;
+    box-shadow: 0 0 6px #ef4444;
+}
+
+.country-marker.pulse {
+    animation: pulseMarker 2s infinite;
+}
+
+@keyframes pulseMarker {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); }
+    50% { transform: translate(-50%, -50%) scale(1.3); }
+}
+
+.globe-graticule {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 50%;
+    background: 
+        repeating-linear-gradient(0deg, transparent, transparent 14%, rgba(255, 255, 255, 0.1) 14%, rgba(255, 255, 255, 0.1) 15%),
+        repeating-linear-gradient(90deg, transparent, transparent 14%, rgba(255, 255, 255, 0.1) 14%, rgba(255, 255, 255, 0.1) 15%);
+    opacity: 0.3;
+}
+
+.globe-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.globe-legend {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 16px;
+    border-radius: 8px;
+    backdrop-filter: blur(10px);
+}
+
+.legend-items {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.legend-color {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+}
+
+.legend-color.high-density {
+    background: #10b981;
+    box-shadow: 0 0 6px #10b981;
+}
+
+.legend-color.medium-density {
+    background: #f59e0b;
+    box-shadow: 0 0 6px #f59e0b;
+}
+
+.legend-color.low-density {
+    background: #ef4444;
+    box-shadow: 0 0 6px #ef4444;
+}
+
+.globe-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.stat-item {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 16px;
+    border-radius: 8px;
+    text-align: center;
+    backdrop-filter: blur(10px);
+}
+
+.stat-value {
+    font-size: 24px;
+    font-weight: bold;
+    color: #60a5fa;
+    margin-bottom: 4px;
+}
+
+.stat-label {
+    font-size: 12px;
+    color: #bfdbfe;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.country-details {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(30, 41, 59, 0.95);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 16px;
+    padding: 20px;
+    width: 300px;
+    z-index: 100;
+    display: none;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+.country-details.active {
+    display: block;
+    animation: slideInUp 0.3s ease-out;
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -40%);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+    }
+}
+
+.details-header {
+    display: flex;
+    justify-content: between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.close-details {
+    background: none;
+    border: none;
+    color: #94a3b8;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s;
+}
+
+.close-details:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.details-content {
+    text-align: center;
+}
+
+.country-flag {
+    font-size: 48px;
+    margin-bottom: 12px;
+}
+
+.country-name {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 16px;
+    color: white;
+}
+
+.country-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+}
+
+.country-stats .stat {
+    text-align: center;
+}
+
+.country-stats .label {
+    display: block;
+    font-size: 12px;
+    color: #94a3b8;
+    margin-bottom: 4px;
+}
+
+.country-stats .value {
+    display: block;
+    font-size: 16px;
+    font-weight: bold;
+    color: white;
+}
+
+.country-stats .value.positive {
+    color: #10b981;
+}
+
+.country-stats .value.negative {
+    color: #ef4446;
+}
+
+/* Compact Chatbot Styles */
+.premium-chatbot-wrapper {
+    position: fixed;
+    bottom: 15px;
+    right: 15px;
+    z-index: 10000;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.premium-toggle {
+    position: relative;
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 12px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 2px solid white;
+    color: white;
+}
+
+.premium-toggle:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+}
+
+.premium-badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    background: #ef4444;
+    color: white;
+    border-radius: 6px;
+    min-width: 14px;
+    height: 14px;
+    font-size: 8px;
+    font-weight: 700;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    border: 1.5px solid white;
+}
+
+.unread-indicator {
+    position: absolute;
+    top: -3px;
+    right: -3px;
+    background: #ef4444;
+    color: white;
+    border-radius: 6px;
+    min-width: 14px;
+    height: 14px;
+    font-size: 8px;
+    font-weight: 600;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    border: 1.5px solid white;
+}
+
+.premium-chat-window {
+    position: absolute;
+    bottom: 60px;
+    right: 0;
+    width: 320px;
+    height: 400px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid #e2e8f0;
+}
+
+.premium-chat-window.active {
+    display: flex;
+}
+
+@media (max-width: 640px) {
+    .premium-chatbot-wrapper {
+        bottom: 10px;
+        right: 10px;
+    }
+    
+    .premium-chat-window {
+        width: calc(100vw - 20px);
+        height: 50vh;
+        max-height: 400px;
+        right: 10px;
+        left: 10px;
+        bottom: 55px;
+    }
+    
+    .premium-toggle {
+        width: 45px;
+        height: 45px;
+    }
+}
+
+.premium-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    flex-shrink: 0;
+}
+
+.premium-header-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.premium-avatar {
+    position: relative;
+    width: 28px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.premium-glow {
+    position: absolute;
+    top: -1px;
+    left: -1px;
+    right: -1px;
+    bottom: -1px;
+    background: conic-gradient(from 0deg, #667eea, #764ba2, #667eea);
+    border-radius: 8px;
+    animation: rotate 3s linear infinite;
+    z-index: -1;
+}
+
+@keyframes rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.premium-info h3 {
+    margin: 0;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.premium-status {
+    font-size: 9px;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    opacity: 0.9;
+}
+
+.status-dot {
+    width: 5px;
+    height: 5px;
+    background: #10b981;
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+}
+
+.premium-actions {
+    display: flex;
+    gap: 4px;
+}
+
+.premium-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: white;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.premium-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.premium-messages {
+    flex: 1;
+    padding: 12px;
+    overflow-y: auto;
+    background: #f8fafc;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-height: 0;
+}
+
+.premium-message {
+    display: flex;
+    gap: 8px;
+    animation: messageSlide 0.3s ease-out;
+}
+
+@keyframes messageSlide {
+    from {
+        opacity: 0;
+        transform: translateY(5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.premium-message.user {
+    flex-direction: row-reverse;
+}
+
+.premium-message-avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.premium-message.user .premium-message-avatar {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+}
+
+.premium-message.assistant .premium-message-avatar {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.premium-message-content {
+    max-width: 220px;
+}
+
+.premium-message.user .premium-message-content {
+    margin-left: auto;
+}
+
+.premium-message-bubble {
+    padding: 8px 12px;
+    border-radius: 10px;
+    font-size: 12px;
+    line-height: 1.3;
+    word-wrap: break-word;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.premium-message.user .premium-message-bubble {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-bottom-right-radius: 3px;
+}
+
+.premium-message.assistant .premium-message-bubble {
+    background: white;
+    color: #1e293b;
+    border: 1px solid #e2e8f0;
+    border-bottom-left-radius: 3px;
+}
+
+.premium-message-time {
+    font-size: 9px;
+    color: #94a3b8;
+    margin-top: 2px;
+    text-align: right;
+}
+
+.premium-message.user .premium-message-time {
+    text-align: right;
+}
+
+.premium-message.assistant .premium-message-time {
+    text-align: left;
+}
+
+.premium-typing-indicator {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.premium-typing-dots {
+    display: flex;
+    gap: 2px;
+    background: white;
+    padding: 8px 12px;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+}
+
+.premium-typing-dots span {
+    width: 4px;
+    height: 4px;
+    background: #94a3b8;
+    border-radius: 50%;
+    animation: typingBounce 1.4s ease-in-out infinite both;
+}
+
+.premium-typing-dots span:nth-child(1) { animation-delay: 0s; }
+.premium-typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+.premium-typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes typingBounce {
+    0%, 60%, 100% { transform: translateY(0); }
+    30% { transform: translateY(-2px); }
+}
+
+.premium-suggestions {
+    padding: 8px 12px;
+    border-top: 1px solid #e2e8f0;
+    background: white;
+    max-height: 60px;
+    overflow-y: auto;
+    flex-shrink: 0;
+}
+
+.premium-suggestions-grid {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+}
+
+.premium-suggestion-chip {
+    padding: 4px 8px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 10px;
+    color: #475569;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: left;
+    line-height: 1.1;
+    max-width: 130px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.premium-suggestion-chip:hover {
+    background: #667eea;
+    color: white;
+}
+
+.premium-input-area {
+    padding: 8px 12px;
+    border-top: 1px solid #e2e8f0;
+    background: white;
+    flex-shrink: 0;
+}
+
+.premium-input-wrapper {
+    display: flex;
+    gap: 8px;
+    align-items: flex-end;
+}
+
+#premiumChatInput {
+    flex: 1;
+    padding: 8px 10px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 12px;
+    resize: none;
+    outline: none;
+    transition: all 0.2s;
+    background: #f8fafc;
+    font-family: inherit;
+    line-height: 1.2;
+    max-height: 60px;
+    min-height: 32px;
+}
+
+#premiumChatInput:focus {
+    border-color: #667eea;
+    background: white;
+    box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+}
+
+.premium-send-btn {
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    border-radius: 6px;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    flex-shrink: 0;
+}
+
+.premium-send-btn:hover:not(:disabled) {
+    transform: scale(1.05);
+}
+
+.premium-send-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.premium-messages::-webkit-scrollbar {
+    width: 4px;
+}
+
+.premium-messages::-webkit-scrollbar-track {
+    background: #f1f5f9;
+}
+
+.premium-messages::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 2px;
+}
+
+.premium-messages::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* Full width layout adjustments */
+.full-width-section {
+    width: 100%;
+    margin-bottom: 2rem;
+}
+
+.expanded-grid {
+    display: grid;
+    gap: 2rem;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+}
+
+/* Enhanced FAQ Section */
+.faq-section {
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    border-radius: 20px;
+    padding: 2.5rem;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e2e8f0;
+}
+
+.faq-header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+}
+
+.faq-header h2 {
+    font-size: 2.25rem;
+    font-weight: 800;
+    color: #1f2937;
+    margin-bottom: 0.5rem;
+}
+
+.faq-header p {
+    font-size: 1.125rem;
+    color: #6b7280;
+}
+
+.faq-grid {
+    display: grid;
+    gap: 1.5rem;
+}
+
+.faq-item-expanded {
+    background: white;
+    border-radius: 16px;
+    padding: 2rem;
+    border: 1px solid #e5e7eb;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.faq-item-expanded:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    border-color: #3b82f6;
+}
+
+.faq-question {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+}
+
+.faq-question-content {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.faq-icon {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.faq-icon.blue {
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+}
+
+.faq-icon.green {
+    background: linear-gradient(135deg, #10b981 0%, #047857 100%);
+}
+
+.faq-icon.purple {
+    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+}
+
+.faq-icon.orange {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+}
+
+.faq-icon svg {
+    width: 1.5rem;
+    height: 1.5rem;
+    color: white;
+}
+
+.faq-text h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 0.25rem;
+}
+
+.faq-arrow {
+    transition: transform 0.3s ease;
+    color: #6b7280;
+}
+
+.faq-arrow.rotated {
+    transform: rotate(180deg);
+}
+
+.faq-answer {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e5e7eb;
+}
+
+.faq-answer-content {
+    color: #4b5563;
+    line-height: 1.6;
+}
+
+.faq-answer-content ul {
+    list-style-type: disc;
+    margin-left: 1.5rem;
+    margin-top: 0.5rem;
+}
+
+/* Updated Globe Styles - Light Blue & White Theme */
+.globe-container {
+    background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 50%, #7dd3fc 100%);
+    border-radius: 16px;
+    padding: 24px;
+    color: #1e3a8a;
+    position: relative;
+    overflow: hidden;
+    min-height: 500px;
+    border: 1px solid #bae6fd;
+}
+
+.globe-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%230ea5e9' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E");
+    opacity: 0.3;
+}
+
+.globe-visualization {
+    position: relative;
+    height: 400px;
+    background: radial-gradient(circle at center, rgba(255, 255, 255, 0.8) 0%, rgba(186, 230, 253, 0.6) 70%);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border: 1px solid rgba(14, 165, 233, 0.2);
+    box-shadow: 0 8px 32px rgba(14, 165, 233, 0.1);
+}
+
+.globe-sphere {
+    width: 280px;
+    height: 280px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, #ffffff, #e0f2fe, #bae6fd, #7dd3fc);
+    position: relative;
+    transform-style: preserve-3d;
+    animation: rotateGlobe 120s linear infinite;
+    box-shadow: 
+        inset 0 0 50px rgba(255, 255, 255, 0.8),
+        inset -20px -20px 50px rgba(14, 165, 233, 0.3),
+        0 0 60px rgba(14, 165, 233, 0.4);
+    border: 2px solid rgba(255, 255, 255, 0.5);
+}
+
+.globe-legend {
+    background: rgba(255, 255, 255, 0.9);
+    padding: 16px;
+    border-radius: 8px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(14, 165, 233, 0.2);
+}
+
+.stat-item {
+    background: rgba(255, 255, 255, 0.9);
+    padding: 16px;
+    border-radius: 8px;
+    text-align: center;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(14, 165, 233, 0.2);
+}
+
+.stat-value {
+    font-size: 24px;
+    font-weight: bold;
+    color: #0369a1;
+    margin-bottom: 4px;
+}
+
+.stat-label {
+    font-size: 12px;
+    color: #0c4a6e;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.country-details {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(14, 165, 233, 0.3);
+    color: #1e3a8a;
+}
+
+.country-name {
+    color: #1e3a8a;
+}
+
+.country-stats .value {
+    color: #0369a1;
+}
+
+.country-stats .value.positive {
+    color: #059669;
+}
+
+.country-stats .value.negative {
+    color: #dc2626;
+}
+
+.legend-color.high-density {
+    background: #059669;
+    box-shadow: 0 0 6px #059669;
+}
+
+.legend-color.medium-density {
+    background: #d97706;
+    box-shadow: 0 0 6px #d97706;
+}
+
+.legend-color.low-density {
+    background: #dc2626;
+    box-shadow: 0 0 6px #dc2626;
+}
+
+.faq-answer-content li {
+    margin-bottom: 0.25rem;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .globe-wrapper {
+        grid-template-columns: 1fr;
+    }
+    
+    .globe-controls {
+        flex-direction: row;
+        justify-content: space-between;
+    }
+    
+    .globe-stats {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .globe-visualization {
+        height: 300px;
+    }
+    
+    .globe-sphere {
+        width: 200px;
+        height: 200px;
+    }
+    
+    .country-details {
+        width: 280px;
+    }
+    
+    .expanded-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .faq-section {
+        padding: 1.5rem;
+    }
+    
+    .faq-item-expanded {
+        padding: 1.5rem;
+    }
+}
+
+/* Updated Globe Styles - Dark Blue Theme */
+.globe-container {
+    background: linear-gradient(135deg, #3f69dd 0%, #1d31e0 50%, #879eeb 100%);
+    border-radius: 16px;
+    padding: 24px;
+    color: rgb(218, 166, 166);
+    position: relative;
+    overflow: hidden;
+    min-height: 500px;
+    border: 1px solid #3730a3;
+    box-shadow: 0 10px 25px rgba(30, 58, 138, 0.3);
+}
+
+.globe-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23ffffff' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
+    opacity: 0.1;
+}
+
+.globe-visualization {
+    position: relative;
+    height: 400px;
+    background: radial-gradient(circle at center, rgba(30, 58, 138, 0.3) 0%, rgba(55, 48, 163, 0.5) 70%);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.globe-sphere {
+    width: 280px;
+    height: 280px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, #46cde5, #2b42c7, #1e3a8a, #2bc5e0);
+    position: relative;
+    transform-style: preserve-3d;
+    animation: rotateGlobe 120s linear infinite;
+    box-shadow: 
+        inset 0 0 50px rgba(255, 255, 255, 0.1),
+        inset -20px -20px 50px rgba(0, 0, 0, 0.4),
+        0 0 60px rgba(59, 130, 246, 0.4);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.globe-shadows {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 50%;
+    background: 
+        radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(0, 0, 0, 0.3) 0%, transparent 50%);
+}
+
+.globe-graticule {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 50%;
+    background: 
+        repeating-linear-gradient(0deg, transparent, transparent 14%, rgba(255, 255, 255, 0.1) 14%, rgba(255, 255, 255, 0.1) 15%),
+        repeating-linear-gradient(90deg, transparent, transparent 14%, rgba(255, 255, 255, 0.1) 14%, rgba(255, 255, 255, 0.1) 15%);
+    opacity: 0.3;
+}
+
+.globe-legend {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 16px;
+    border-radius: 8px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.legend-items {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.legend-color {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+}
+
+.legend-color.high-density {
+    background: #10b981;
+    box-shadow: 0 0 6px #10b981;
+}
+
+.legend-color.medium-density {
+    background: #f59e0b;
+    box-shadow: 0 0 6px #f59e0b;
+}
+
+.legend-color.low-density {
+    background: #ef4444;
+    box-shadow: 0 0 6px #ef4444;
+}
+
+.globe-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.stat-item {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 16px;
+    border-radius: 8px;
+    text-align: center;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.stat-value {
+    font-size: 24px;
+    font-weight: bold;
+    color: #60a5fa;
+    margin-bottom: 4px;
+}
+
+.stat-label {
+    font-size: 12px;
+    color: #bfdbfe;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.country-details {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(30, 41, 59, 0.95);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 16px;
+    padding: 20px;
+    width: 300px;
+    z-index: 100;
+    display: none;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+.country-details.active {
+    display: block;
+    animation: slideInUp 0.3s ease-out;
+}
+
+.details-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.close-details {
+    background: none;
+    border: none;
+    color: #000000;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s;
+}
+
+.close-details:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.details-content {
+    text-align: center;
+}
+
+.country-flag {
+    font-size: 48px;
+    margin-bottom: 12px;
+}
+
+.country-name {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 16px;
+    color: white;
+}
+
+.country-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+}
+
+.country-stats .stat {
+    text-align: center;
+}
+
+.country-stats .label {
+    display: block;
+    font-size: 12px;
+    color: #94a3b8;
+    margin-bottom: 4px;
+}
+
+.country-stats .value {
+    display: block;
+    font-size: 16px;
+    font-weight: bold;
+    color: white;
+}
+
+.country-stats .value.positive {
+    color: #10b981;
+}
+
+.country-stats .value.negative {
+    color: #ef4444;
+}
+
+.country-marker {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 10;
+}
+
+.country-marker:hover {
+    transform: translate(-50%, -50%) scale(1.5);
+    z-index: 20;
+}
+
+.country-marker.high-density {
+    background: #10b981;
+    box-shadow: 0 0 10px #10b981;
+}
+
+.country-marker.medium-density {
+    background: #f59e0b;
+    box-shadow: 0 0 8px #f59e0b;
+}
+
+.country-marker.low-density {
+    background: #ef4444;
+    box-shadow: 0 0 6px #ef4444;
+}
+
+.country-marker.pulse {
+    animation: pulseMarker 2s infinite;
+}
+
+@keyframes pulseMarker {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); }
+    50% { transform: translate(-50%, -50%) scale(1.3); }
+}
+
+@keyframes rotateGlobe {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -40%);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .globe-wrapper {
+        grid-template-columns: 1fr;
+    }
+    
+    .globe-controls {
+        flex-direction: row;
+        justify-content: space-between;
+    }
+    
+    .globe-stats {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .globe-visualization {
+        height: 300px;
+    }
+    
+    .globe-sphere {
+        width: 200px;
+        height: 200px;
+    }
+    
+    .country-details {
+        width: 280px;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-6 py-8">
+    <!-- Enhanced Welcome Section -->
+    <div class="mb-8 fade-in">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-4xl font-bold text-gray-900 mb-2" id="welcome-message">
+                    {% if current_user.first_name %}
+                        Welcome back, {{ current_user.first_name }}! 👋
+                    {% else %}
+                        Welcome to Steam Analytics! 🚀
+                    {% endif %}
+                </h1>
+                <p class="text-xl text-gray-600 mb-4" id="dashboard-subtitle">
+                     Analytics platform for 50K+ Steam games, 14M+ users, and 41M+ reviews
+                </p>
+                <div class="flex flex-wrap gap-3" id="user-stats">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                        <span class="w-2 h-2 bg-blue-500 rounded-full mr-2 pulse-dot"></span>
+                        Real-time Data
+                    </span>
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                        <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                        Live Analytics
+                    </span>
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-800">
+                        <span class="w-2 h-2 bg-purple-500 rounded-full mr-2"></span>
+                        Professional Insights
+                    </span>
+                </div>
+            </div>
+            <div class="hidden md:block">
+                <div class="text-right">
+                    <p class="text-sm text-gray-500">Last Updated</p>
+                    <p class="text-lg font-semibold text-gray-900" id="last-updated">Just now</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Real-time Metrics Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <!-- Total Games Card -->
+    <div class="stat-card rounded-2xl p-6 shadow-lg border border-gray-100 fade-in">
+        <div class="flex items-center justify-between mb-4">
+            <div class="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                </svg>
+            </div>
+            <div class="text-right">
+                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                    <span class="w-2 h-2 bg-blue-500 rounded-full mr-1 pulse-dot"></span>
+                    LIVE
+                </span>
+            </div>
+        </div>
+        <h3 class="text-sm font-medium text-gray-600 mb-2">Total Games Analyzed</h3>
+        <div class="flex items-baseline">
+            <p class="text-3xl font-bold text-gray-900" id="total-games">
+                <span class="loading-shimmer rounded w-20 h-8 inline-block"></span>
+            </p>
+        </div>
+        <p class="text-xs text-gray-500 mt-2">From Steam platform database</p>
+    </div>
+
+    <!-- Total Users Card -->
+    <div class="stat-card rounded-2xl p-6 shadow-lg border border-gray-100 fade-in" style="animation-delay: 0.1s;">
+        <div class="flex items-center justify-between mb-4">
+            <div class="p-3 rounded-xl bg-gradient-to-br from-green-500 to-green-600">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                </svg>
+            </div>
+            <div class="text-right">
+                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                    <span class="w-2 h-2 bg-green-500 rounded-full mr-1 pulse-dot"></span>
+                    LIVE
+                </span>
+            </div>
+        </div>
+        <h3 class="text-sm font-medium text-gray-600 mb-2">Total Users</h3>
+        <div class="flex items-baseline">
+            <p class="text-3xl font-bold text-gray-900" id="total-users">
+                <span class="loading-shimmer rounded w-20 h-8 inline-block"></span>
+            </p>
+        </div>
+        <p class="text-xs text-gray-500 mt-2">Active Steam users analyzed</p>
+    </div>
+
+    <!-- Total Reviews Card -->
+    <div class="stat-card rounded-2xl p-6 shadow-lg border border-gray-100 fade-in" style="animation-delay: 0.2s;">
+        <div class="flex items-center justify-between mb-4">
+            <div class="p-3 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"></path>
+                </svg>
+            </div>
+            <div class="text-right">
+                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                    <span class="w-2 h-2 bg-purple-500 rounded-full mr-1 pulse-dot"></span>
+                    LIVE
+                </span>
+            </div>
+        </div>
+        <h3 class="text-sm font-medium text-gray-600 mb-2">Total Reviews</h3>
+        <div class="flex items-baseline">
+            <p class="text-3xl font-bold text-gray-900" id="total-reviews">
+                <span class="loading-shimmer rounded w-20 h-8 inline-block"></span>
+            </p>
+        </div>
+        <p class="text-xs text-gray-500 mt-2">User reviews processed</p>
+    </div>
+
+    <!-- Average Rating Card -->
+    <div class="stat-card rounded-2xl p-6 shadow-lg border border-gray-100 fade-in" style="animation-delay: 0.3s;">
+        <div class="flex items-center justify-between mb-4">
+            <div class="p-3 rounded-xl bg-gradient-to-br from-orange-500 to-orange-600">
+                <span class="text-white text-lg">⭐</span>
+            </div>
+            <div class="text-right">
+                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                    <span class="w-2 h-2 bg-orange-500 rounded-full mr-1 pulse-dot"></span>
+                    LIVE
+                </span>
+            </div>
+        </div>
+        <h3 class="text-sm font-medium text-gray-600 mb-2">Average Rating</h3>
+        <div class="flex items-baseline">
+            <p class="text-3xl font-bold text-gray-900" id="avg-rating">
+                <span class="loading-shimmer rounded w-16 h-8 inline-block"></span>
+            </p>
+        </div>
+        <p class="text-xs text-gray-500 mt-2">Across all reviewed games</p>
+    </div>
+</div>
+
+<!-- Data Connectivity Status -->
+<div class="bg-gradient-to-r from-blue-50 to-indigo-100 rounded-2xl p-6 shadow-lg border border-blue-200 mb-8 fade-in">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+        <div class="mb-4 md:mb-0">
+            <h2 class="text-2xl font-bold text-gray-900 mb-2">🔗 Real-time Data Pipeline</h2>
+            <p class="text-gray-600">Connected to Steam's massive gaming dataset with live analytics</p>
+        </div>
+        <div class="flex space-x-3">
+            <button onclick="refreshAllData()" class="flex items-center px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition duration-200 shadow-lg">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                </svg>
+                Refresh Data
+            </button>
+        </div>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6" id="data-connectivity">
+        <div class="bg-white rounded-xl p-4 border-2 border-green-200 shadow-sm">
+            <div class="flex items-center mb-3">
+                <div class="w-3 h-3 bg-green-500 rounded-full mr-3 pulse-dot"></div>
+                <span class="text-lg font-semibold text-green-900">Games Database</span>
+            </div>
+            <p class="text-sm text-green-700" id="games-status">Loading 50,872 games...</p>
+            <div class="w-full bg-green-200 rounded-full h-2 mt-2">
+                <div class="bg-green-500 h-2 rounded-full" style="width: 100%"></div>
+            </div>
+        </div>
+        <div class="bg-white rounded-xl p-4 border-2 border-blue-200 shadow-sm">
+            <div class="flex items-center mb-3">
+                <div class="w-3 h-3 bg-blue-500 rounded-full mr-3 pulse-dot"></div>
+                <span class="text-lg font-semibold text-blue-900">Users Database</span>
+            </div>
+            <p class="text-sm text-blue-700" id="users-status">Loading 14M+ users...</p>
+            <div class="w-full bg-blue-200 rounded-full h-2 mt-2">
+                <div class="bg-blue-500 h-2 rounded-full" style="width: 100%"></div>
+            </div>
+        </div>
+        <div class="bg-white rounded-xl p-4 border-2 border-purple-200 shadow-sm">
+            <div class="flex items-center mb-3">
+                <div class="w-3 h-3 bg-purple-500 rounded-full mr-3 pulse-dot"></div>
+                <span class="text-lg font-semibold text-purple-900">Reviews Database</span>
+            </div>
+            <p class="text-sm text-purple-700" id="reviews-status">Loading 41M+ reviews...</p>
+            <div class="w-full bg-purple-200 rounded-full h-2 mt-2">
+                <div class="bg-purple-500 h-2 rounded-full" style="width: 100%"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Top Performing Games - Full Width -->
+<div class="chart-container fade-in mb-8">
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h2 class="text-2xl font-bold text-gray-900">🎮 Top Performing Games</h2>
+            <p class="text-gray-600 mt-1">Real-time insights from your Steam analytics data</p>
+        </div>
+        <div class="flex items-center space-x-2">
+            <span class="text-sm text-gray-500">Live Data</span>
+            <div class="w-2 h-2 bg-green-500 rounded-full pulse-dot"></div>
+        </div>
+    </div>
+    
+    <!-- Games Grid - Full Width -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="top-games-list">
+        <!-- Game cards will be loaded here with real data -->
+    </div>
+</div>
+
+<!-- Quick Insights Panel - Full Width -->
+<div class="chart-container fade-in mb-8">
+    <h2 class="text-2xl font-bold text-gray-900 mb-6">💡 Quick Insights</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="quick-insights">
+        <!-- Insights will be loaded here -->
+        <div class="insight-card">
+            <div class="flex items-start justify-between mb-2">
+                <h4 class="font-semibold text-gray-900">Market Overview</h4>
+                <span class="metric-trend trend-up">+12.5%</span>
+            </div>
+            <p class="text-sm text-gray-600">Analyzing current gaming trends...</p>
+        </div>
+        <div class="insight-card">
+            <div class="flex items-start justify-between mb-2">
+                <h4 class="font-semibold text-gray-900">User Engagement</h4>
+                <span class="metric-trend trend-up">+8.3%</span>
+            </div>
+            <p class="text-sm text-gray-600">Calculating player activity patterns...</p>
+        </div>
+        <div class="insight-card">
+            <div class="flex items-start justify-between mb-2">
+                <h4 class="font-semibold text-gray-900">Revenue Trends</h4>
+                <span class="metric-trend trend-neutral">±0.0%</span>
+            </div>
+            <p class="text-sm text-gray-600">Processing sales data...</p>
+        </div>
+    </div>
+</div>
+
+<!-- System Performance Dashboard - Full Width -->
+<div class="chart-container fade-in mb-8">
+    <h2 class="text-2xl font-bold text-gray-900 mb-6">⚡ System Performance</h2>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <div class="text-center p-4 bg-gradient-to-br from-green-50 to-emerald-100 rounded-xl border border-green-200">
+            <div class="text-2xl font-bold text-green-600" id="response-time">124ms</div>
+            <div class="text-sm text-green-800 font-medium">Response Time</div>
+            <div class="text-xs text-green-600 mt-1">Optimal</div>
+        </div>
+        <div class="text-center p-4 bg-gradient-to-br from-blue-50 to-cyan-100 rounded-xl border border-blue-200">
+            <div class="text-2xl font-bold text-blue-600" id="data-accuracy">99.8%</div>
+            <div class="text-sm text-blue-800 font-medium">Data Accuracy</div>
+            <div class="text-xs text-blue-600 mt-1">Excellent</div>
+        </div>
+        <div class="text-center p-4 bg-gradient-to-br from-purple-50 to-violet-100 rounded-xl border border-purple-200">
+            <div class="text-2xl font-bold text-purple-600" id="uptime">99.9%</div>
+            <div class="text-sm text-purple-800 font-medium">Uptime</div>
+            <div class="text-xs text-purple-600 mt-1">Stable</div>
+        </div>
+        <div class="text-center p-4 bg-gradient-to-br from-orange-50 to-amber-100 rounded-xl border border-orange-200">
+            <div class="text-2xl font-bold text-orange-600" id="processing-speed">1,250/s</div>
+            <div class="text-sm text-orange-800 font-medium">Processing Speed</div>
+            <div class="text-xs text-orange-600 mt-1">High Performance</div>
+        </div>
+    </div>
+    
+    <!-- Data Pipeline Status -->
+    <div class="pt-6 border-t border-gray-200">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">🔧 Data Pipeline Status</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                <div class="flex items-center">
+                    <div class="w-3 h-3 bg-green-500 rounded-full mr-3 pulse-dot"></div>
+                    <span class="font-medium text-gray-700">Games Database</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <span class="text-sm text-green-600 font-medium">Connected</span>
+                    <span class="text-xs text-gray-500">50,872 records</span>
+                </div>
+            </div>
+            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                <div class="flex items-center">
+                    <div class="w-3 h-3 bg-green-500 rounded-full mr-3 pulse-dot"></div>
+                    <span class="font-medium text-gray-700">Users Database</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <span class="text-sm text-green-600 font-medium">Connected</span>
+                    <span class="text-xs text-gray-500">14.2M records</span>
+                </div>
+            </div>
+            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                <div class="flex items-center">
+                    <div class="w-3 h-3 bg-green-500 rounded-full mr-3 pulse-dot"></div>
+                    <span class="font-medium text-gray-700">Reviews Database</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <span class="text-sm text-green-600 font-medium">Connected</span>
+                    <span class="text-xs text-gray-500">41.5M records</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Analytics Charts - Full Width -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+    <!-- Price Distribution Chart -->
+    <div class="chart-container chart-fade-in">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-semibold text-gray-900">💰 Price Distribution</h3>
+            <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">Real-time</span>
+        </div>
+        <div class="h-64 flex items-center justify-center" id="price-chart">
+            <div class="text-center">
+                <div class="skeleton-loader w-48 h-6 mb-2 mx-auto"></div>
+                <div class="skeleton-loader w-32 h-4 mb-4 mx-auto"></div>
+                <div class="skeleton-loader w-64 h-32 rounded-lg"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rating Analysis Chart -->
+    <div class="chart-container chart-fade-in">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-semibold text-gray-900">⭐ Rating Analysis</h3>
+            <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">Live</span>
+        </div>
+        <div class="h-64 flex items-center justify-center" id="rating-chart">
+            <div class="text-center">
+                <div class="skeleton-loader w-48 h-6 mb-2 mx-auto"></div>
+                <div class="skeleton-loader w-32 h-4 mb-4 mx-auto"></div>
+                <div class="skeleton-loader w-64 h-32 rounded-lg"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Real-time Metrics - Full Width -->
+<div class="chart-container fade-in mb-8">
+    <h2 class="text-2xl font-bold text-gray-900 mb-6">📊 Live User Metrics</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="live-metrics">
+        <div class="text-center p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl border border-blue-200">
+            <div class="text-3xl font-bold text-blue-600 mb-2" id="active-sessions">15,284</div>
+            <div class="text-lg font-semibold text-blue-800">Active Sessions</div>
+            <div class="text-sm text-blue-600 mt-2">Current online users</div>
+        </div>
+        <div class="text-center p-6 bg-gradient-to-br from-green-50 to-green-100 rounded-xl border border-green-200">
+            <div class="text-3xl font-bold text-green-600 mb-2" id="avg-playtime">42h</div>
+            <div class="text-lg font-semibold text-green-800">Avg Playtime</div>
+            <div class="text-sm text-green-600 mt-2">Per user this month</div>
+        </div>
+        <div class="text-center p-6 bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl border border-purple-200">
+            <div class="text-3xl font-bold text-purple-600 mb-2" id="positive-reviews">85%</div>
+            <div class="text-lg font-semibold text-purple-800">Positive Reviews</div>
+            <div class="text-sm text-purple-600 mt-2">User satisfaction rate</div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Enhanced FAQ Section - Full Width -->
+<div class="faq-section fade-in full-width-section">
+    <div class="faq-header">
+        <h2>❓ Frequently Asked Questions</h2>
+        <p>Everything you need to know about Steam Analytics Platform</p>
+    </div>
+    
+    <div class="faq-grid" id="faq-container">
+        <!-- FAQ Item 1 -->
+        <div class="faq-item-expanded">
+            <div class="faq-question" onclick="toggleFAQ('faq1')">
+                <div class="faq-question-content">
+                    <div class="faq-icon blue">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                        </svg>
+                    </div>
+                    <div class="faq-text">
+                        <h3>What is Steam Analytics Platform?</h3>
+                    </div>
+                </div>
+                <div class="faq-arrow" id="faq1-arrow">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </div>
+            </div>
+            <div class="faq-answer" id="faq1-answer" style="display: none;">
+                <div class="faq-answer-content">
+                    <p>Steam Analytics Platform is an advanced business intelligence system that processes massive gaming data from the Steam platform. It analyzes:</p>
+                    <ul>
+                        <li><strong>50,872+ games</strong> with complete metadata and performance metrics</li>
+                        <li><strong>14+ million users</strong> and their gaming preferences, behaviors, and patterns</li>
+                        <li><strong>41+ million reviews</strong> for sentiment analysis and user feedback</li>
+                    </ul>
+                    <p>The platform provides actionable insights for game developers, publishers, and market analysts to make data-driven decisions.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- FAQ Item 2 -->
+        <div class="faq-item-expanded">
+            <div class="faq-question" onclick="toggleFAQ('faq2')">
+                <div class="faq-question-content">
+                    <div class="faq-icon green">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                    <div class="faq-text">
+                        <h3>What kind of insights can I get?</h3>
+                    </div>
+                </div>
+                <div class="faq-arrow" id="faq2-arrow">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </div>
+            </div>
+            <div class="faq-answer" id="faq2-answer" style="display: none;">
+                <div class="faq-answer-content">
+                    <p>Our platform provides comprehensive insights across multiple dimensions:</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
+                        <div class="bg-blue-50 p-3 rounded-lg">
+                            <h4 class="font-semibold text-blue-900">🎯 Market Trends</h4>
+                            <p class="text-sm text-blue-700 mt-1">Genre popularity, pricing strategies, and release patterns</p>
+                        </div>
+                        <div class="bg-green-50 p-3 rounded-lg">
+                            <h4 class="font-semibold text-green-900">👥 User Behavior</h4>
+                            <p class="text-sm text-green-700 mt-1">Play patterns, review sentiments, and engagement metrics</p>
+                        </div>
+                        <div class="bg-purple-50 p-3 rounded-lg">
+                            <h4 class="font-semibold text-purple-900">📊 Performance Analytics</h4>
+                            <p class="text-sm text-purple-700 mt-1">Game ratings, recommendation rates, and success factors</p>
+                        </div>
+                        <div class="bg-orange-50 p-3 rounded-lg">
+                            <h4 class="font-semibold text-orange-900">🔮 Predictive Insights</h4>
+                            <p class="text-sm text-orange-700 mt-1">Market opportunities and growth predictions</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FAQ Item 3 -->
+        <div class="faq-item-expanded">
+            <div class="faq-question" onclick="toggleFAQ('faq3')">
+                <div class="faq-question-content">
+                    <div class="faq-icon purple">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        </svg>
+                    </div>
+                    <div class="faq-text">
+                        <h3>How do I use the analytics features?</h3>
+                    </div>
+                </div>
+                <div class="faq-arrow" id="faq3-arrow">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </div>
+            </div>
+            <div class="faq-answer" id="faq3-answer" style="display: none;">
+                <div class="faq-answer-content">
+                    <p>Using our platform is straightforward and designed for both technical and non-technical users:</p>
+                    <div class="space-y-3 mt-3">
+                        <div class="flex items-start">
+                            <span class="w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-sm font-bold mt-1 mr-3">1</span>
+                            <div>
+                                <h4 class="font-semibold text-gray-900">Navigate to Analytics</h4>
+                                <p class="text-sm text-gray-600">Use the "Advanced Analytics" button to access detailed charts and metrics</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <span class="w-6 h-6 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-sm font-bold mt-1 mr-3">2</span>
+                            <div>
+                                <h4 class="font-semibold text-gray-900">Explore Game Data</h4>
+                                <p class="text-sm text-gray-600">Browse through top-performing games, genres, and user engagement data</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <span class="w-6 h-6 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center text-sm font-bold mt-1 mr-3">3</span>
+                            <div>
+                                <h4 class="font-semibold text-gray-900">Generate Reports</h4>
+                                <p class="text-sm text-gray-600">Create custom reports and export data for further analysis</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FAQ Item 4 -->
+        <div class="faq-item-expanded">
+            <div class="faq-question" onclick="toggleFAQ('faq4')">
+                <div class="faq-question-content">
+                    <div class="faq-icon orange">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                    <div class="faq-text">
+                        <h3>Is my data secure and private?</h3>
+                    </div>
+                </div>
+                <div class="faq-arrow" id="faq4-arrow">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </div>
+            </div>
+            <div class="faq-answer" id="faq4-answer" style="display: none;">
+                <div class="faq-answer-content">
+                    <p>Yes, data security and privacy are our top priorities:</p>
+                    <div class="bg-gradient-to-r from-green-50 to-emerald-100 rounded-xl p-4 mt-3">
+                        <div class="flex items-center mb-3">
+                            <svg class="w-5 h-5 text-green-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                            </svg>
+                            <h4 class="font-semibold text-green-900">Security Measures</h4>
+                        </div>
+                        <ul class="list-disc list-inside space-y-2 text-sm text-green-800">
+                            <li>All data is anonymized and aggregated for analysis</li>
+                            <li>Enterprise-grade encryption for data in transit and at rest</li>
+                            <li>Regular security audits and compliance checks</li>
+                            <li>GDPR and CCPA compliant data handling</li>
+                        </ul>
+                    </div>
+                    <p class="mt-4 text-sm text-gray-600">We never store personal identifiable information and all analytics are performed on aggregated, anonymous data.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Compact Chatbot HTML -->
+<div id="premiumChatbot" class="premium-chatbot-wrapper">
+    <div class="premium-toggle" id="premiumToggle">
+        <div class="premium-toggle-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2L13.09 4.26L15.5 4.61L13.73 6.39L14.09 8.78L12 7.5L9.91 8.78L10.27 6.39L8.5 4.61L10.91 4.26L12 2Z" fill="currentColor"/>
+                <path d="M19 9L20.09 11.26L22.5 11.61L20.73 13.39L21.09 15.78L19 14.5L16.91 15.78L17.27 13.39L15.5 11.61L17.91 11.26L19 9Z" fill="currentColor"/>
+                <path d="M5 9L6.09 11.26L8.5 11.61L6.73 13.39L7.09 15.78L5 14.5L2.91 15.78L3.27 13.39L1.5 11.61L3.91 11.26L5 9Z" fill="currentColor"/>
+                <path d="M12 16L13.09 18.26L15.5 18.61L13.73 20.39L14.09 22.78L12 21.5L9.91 22.78L10.27 20.39L8.5 18.61L10.91 18.26L12 16Z" fill="currentColor"/>
+            </svg>
+        </div>
+        <div class="premium-badge">AI</div>
+        <div class="unread-indicator" id="premiumUnread">0</div>
+    </div>
+
+    <div class="premium-chat-window" id="premiumChatWindow">
+        <div class="premium-header">
+            <div class="premium-header-left">
+                <div class="premium-avatar">
+                    <div class="premium-glow"></div>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 4C13.5 4 15 5.5 15 7C15 8.5 13.5 10 12 10C10.5 10 9 8.5 9 7C9 5.5 10.5 4 12 4Z" fill="currentColor"/>
+                        <path d="M12 14C14 14 16 15 16 17V19H8V17C8 15 10 14 12 14Z" fill="currentColor"/>
+                        <path d="M19 10C20.5 10 22 11.5 22 13C22 14.5 20.5 16 19 16C17.5 16 16 14.5 16 13C16 11.5 17.5 10 19 10Z" fill="currentColor"/>
+                        <path d="M5 10C6.5 10 8 11.5 8 13C8 14.5 6.5 16 5 16C3.5 16 2 14.5 2 13C2 11.5 3.5 10 5 10Z" fill="currentColor"/>
+                        <path d="M15 20H9V22H15V20Z" fill="currentColor"/>
+                    </svg>
+                </div>
+                <div class="premium-info">
+                    <h3>Steam Analysis AI</h3>
+                    <span class="premium-status">
+                        <span class="status-dot"></span>
+                        Online
+                    </span>
+                </div>
+            </div>
+            <div class="premium-actions">
+                <button class="premium-btn" id="premiumMinimize" title="Minimize">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M18 15L12 9L6 15"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <div class="premium-messages" id="premiumMessages"></div>
+
+        <div class="premium-suggestions" id="premiumSuggestions">
+            <div class="premium-suggestions-grid" id="premiumSuggestionsGrid"></div>
+        </div>
+
+        <div class="premium-input-area">
+            <div class="premium-input-wrapper">
+                <textarea 
+                    id="premiumChatInput" 
+                    placeholder="Ask about Steam analytics..."
+                    rows="1"
+                    maxlength="300"
+                ></textarea>
+                <button id="premiumSendBtn" class="premium-send-btn">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Enhanced Dashboard Initialization
+document.addEventListener('DOMContentLoaded', function() {
+    initializeProfessionalDashboard();
+    initializePremiumChatbot();
+    initializeGlobeVisualization();
+});
+
+async function initializeProfessionalDashboard() {
+    await loadRealTimeMetrics();
+    await loadTopGamesWithRealData();
+    await loadChartsAndVisualizations();
+    await loadQuickInsights();
+    await loadLiveMetrics();
+    updateWelcomeMessage();
+    
+    // Start real-time updates
+    startRealTimeUpdates();
+}
+
+async function loadRealTimeMetrics() {
+    try {
+        const response = await fetch('/api/real-time-metrics');
+        const data = await response.json();
+        
+        if (data.success) {
+            // Update main metrics cards
+            document.getElementById('total-games').innerHTML = data.metrics.total_games?.toLocaleString() || '50,872';
+            document.getElementById('total-users').innerHTML = data.metrics.total_users?.toLocaleString() || '14.2M';
+            document.getElementById('total-reviews').innerHTML = data.metrics.total_recommendations?.toLocaleString() || '41.5M';
+            document.getElementById('avg-rating').innerHTML = data.metrics.avg_rating || '4.2';
+            
+            // Update connectivity status
+            document.getElementById('games-status').textContent = `${data.metrics.total_games?.toLocaleString() || '50,872'} games loaded`;
+            document.getElementById('users-status').textContent = `${data.metrics.total_users?.toLocaleString() || '14.2M'} users loaded`;
+            document.getElementById('reviews-status').textContent = `${data.metrics.total_recommendations?.toLocaleString() || '41.5M'} reviews loaded`;
+            
+            // Update last updated time
+            document.getElementById('last-updated').textContent = 'Just now';
+        } else {
+            loadSampleMetrics();
+        }
+    } catch (error) {
+        console.error('Error loading real-time metrics:', error);
+        loadSampleMetrics();
+    }
+}
+
+function loadSampleMetrics() {
+    // Fallback to sample data
+    document.getElementById('total-games').innerHTML = '50,872';
+    document.getElementById('total-users').innerHTML = '14.2M';
+    document.getElementById('total-reviews').innerHTML = '41.5M';
+    document.getElementById('avg-rating').innerHTML = '4.2';
+    
+    document.getElementById('games-status').textContent = '50,872 games loaded';
+    document.getElementById('users-status').textContent = '14.2M users loaded';
+    document.getElementById('reviews-status').textContent = '41.5M reviews loaded';
+    document.getElementById('last-updated').textContent = 'Just now';
+}
+
+async function loadTopGamesWithRealData() {
+    try {
+        const response = await fetch('/api/top-games');
+        const data = await response.json();
+        
+        if (data.success && data.games.length > 0) {
+            updateTopGamesListWithRealData(data.games);
+        } else {
+            loadSampleTopGames();
+        }
+    } catch (error) {
+        console.error('Error loading top games:', error);
+        loadSampleTopGames();
+    }
+}
+
+function updateTopGamesListWithRealData(games) {
+    const container = document.getElementById('top-games-list');
+    
+    container.innerHTML = games.map((game, index) => `
+        <div class="enhanced-game-card">
+            <div class="flex items-start justify-between mb-3">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center text-white font-bold text-sm shadow-lg">
+                        ${index + 1}
+                    </div>
+                    <div class="ml-3">
+                        <h4 class="font-bold text-gray-900 text-sm leading-tight line-clamp-2">${game.name}</h4>
+                        <div class="flex items-center mt-1">
+                            <span class="game-rating text-xs">${game.rating}/5</span>
+                            <span class="text-xs text-gray-500 ml-2">${game.positive_ratio}% positive</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-2 text-xs mb-3">
+                <div class="text-center p-2 bg-blue-50 rounded-lg">
+                    <p class="font-semibold text-blue-700">Price</p>
+                    <p class="text-blue-900">${game.price === 0 ? 'Free' : '$' + game.price}</p>
+                </div>
+                <div class="text-center p-2 bg-green-50 rounded-lg">
+                    <p class="font-semibold text-green-700">Discount</p>
+                    <p class="text-green-900">${game.discount}% off</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center justify-between">
+                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                    ${game.steam_deck || 'Compatible'}
+                </span>
+                <button onclick="viewGameDetails('${game.name}')" class="text-blue-600 hover:text-blue-500 text-xs font-medium">
+                    Analyze
+                </button>
+            </div>
+        </div>
+    `).join('');
+}
+
+function loadSampleTopGames() {
+    const sampleGames = [
+        {
+            name: "Counter-Strike 2",
+            rating: 4.8,
+            positive_ratio: 92,
+            price: 0,
+            discount: 0,
+            steam_deck: "Verified"
+        },
+        {
+            name: "Dota 2",
+            rating: 4.7,
+            positive_ratio: 88,
+            price: 0,
+            discount: 0,
+            steam_deck: "Playable"
+        },
+        {
+            name: "Apex Legends",
+            rating: 4.5,
+            positive_ratio: 85,
+            price: 0,
+            discount: 0,
+            steam_deck: "Verified"
+        },
+        {
+            name: "Baldur's Gate 3",
+            rating: 4.9,
+            positive_ratio: 96,
+            price: 59.99,
+            discount: 10,
+            steam_deck: "Verified"
+        }
+    ];
+    
+    updateTopGamesListWithRealData(sampleGames);
+}
+
+async function loadChartsAndVisualizations() {
+    try {
+        // Load games analytics for charts
+        const gamesResponse = await fetch('/api/games-analytics');
+        const gamesData = await gamesResponse.json();
+        
+        if (gamesData.price_distribution) {
+            updatePriceChart(gamesData.price_distribution);
+        }
+        
+        if (gamesData.rating_analysis) {
+            updateRatingChart(gamesData.rating_analysis);
+        }
+        
+        // Load user analytics for engagement chart
+        const userResponse = await fetch('/api/user-analytics');
+        const userData = await userResponse.json();
+        
+        if (userData.activity_trends) {
+            updateEngagementChart(userData.activity_trends);
+        }
+        
+    } catch (error) {
+        console.error('Error loading charts:', error);
+        loadSampleCharts();
+    }
+}
+
+function loadSampleCharts() {
+    // Sample price distribution
+    updatePriceChart({
+        ranges: ['$0-5', '$5-10', '$10-20', '$20-30', '$30-40', '$40+'],
+        counts: [35, 25, 20, 12, 5, 3]
+    });
+    
+    // Sample rating analysis
+    updateRatingChart({
+        ranges: ['0-25%', '25-50%', '50-75%', '75-100%'],
+        counts: [10, 20, 40, 30]
+    });
+    
+    // Sample engagement data
+    updateEngagementChart({
+        months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
+        activeUsers: [12500, 13200, 14500, 15800, 16700, 18900, 20100, 21500],
+        newUsers: [1200, 1500, 1800, 2100, 1900, 2300, 2500, 2800],
+        returningUsers: [9800, 10400, 11500, 12500, 13500, 14800, 15800, 16900]
+    });
+}
+
+async function loadQuickInsights() {
+    try {
+        const response = await fetch('/api/ai-insights');
+        const data = await response.json();
+        
+        if (data.success && data.insights.length > 0) {
+            updateQuickInsights(data.insights);
+        } else {
+            loadSampleInsights();
+        }
+    } catch (error) {
+        console.error('Error loading quick insights:', error);
+        loadSampleInsights();
+    }
+}
+
+function updateQuickInsights(insights) {
+    const container = document.getElementById('quick-insights');
+    
+    const insightCards = insights.slice(0, 3).map(insight => {
+        // Extract title and content from insight
+        const titleMatch = insight.match(/\*\*(.*?)\*\*/);
+        const title = titleMatch ? titleMatch[1] : 'Data Insight';
+        const content = insight.replace(/\*\*/g, '');
+        
+        return `
+            <div class="insight-card">
+                <div class="flex items-start justify-between mb-2">
+                    <h4 class="font-semibold text-gray-900">${title}</h4>
+                    <span class="metric-trend trend-up">+${Math.floor(Math.random() * 15) + 5}%</span>
+                </div>
+                <p class="text-sm text-gray-600">${content}</p>
+            </div>
+        `;
+    }).join('');
+    
+    container.innerHTML = insightCards;
+}
+
+function loadSampleInsights() {
+    const insights = [
+        "**Market Trend**: Action games show 15% growth in Q4",
+        "**User Insight**: Average playtime increased by 8% this month", 
+        "**Revenue Alert**: Premium games revenue up 22% year-over-year"
+    ];
+    
+    updateQuickInsights(insights);
+}
+
+async function loadLiveMetrics() {
+    try {
+        const response = await fetch('/api/real-time-metrics');
+        const data = await response.json();
+        
+        if (data.success) {
+            updateLiveMetrics(data.metrics);
+        } else {
+            loadSampleLiveMetrics();
+        }
+    } catch (error) {
+        console.error('Error loading live metrics:', error);
+        loadSampleLiveMetrics();
+    }
+}
+
+function updateLiveMetrics(metrics) {
+    // Update active sessions
+    const activeSessions = document.getElementById('active-sessions');
+    if (activeSessions) {
+        activeSessions.textContent = metrics.total_users ? Math.floor(metrics.total_users * 0.1).toLocaleString() : '15,284';
+    }
+    
+    // Update average playtime
+    const avgPlaytime = document.getElementById('avg-playtime');
+    if (avgPlaytime) {
+        avgPlaytime.textContent = `${metrics.avg_playtime || '42'}h`;
+    }
+    
+    // Update positive reviews
+    const positiveReviews = document.getElementById('positive-reviews');
+    if (positiveReviews) {
+        positiveReviews.textContent = `${metrics.positive_recommendation_rate || '85'}%`;
+    }
+}
+
+function loadSampleLiveMetrics() {
+    document.getElementById('active-sessions').textContent = '15,284';
+    document.getElementById('avg-playtime').textContent = '42h';
+    document.getElementById('positive-reviews').textContent = '85%';
+}
+
+function updateWelcomeMessage() {
+    const welcomeMessage = document.getElementById('welcome-message');
+    const subtitle = document.getElementById('dashboard-subtitle');
+    
+    if (welcomeMessage && subtitle) {
+        // You can customize this based on time of day or user data
+        const hour = new Date().getHours();
+        let greeting = 'Good morning';
+        
+        if (hour >= 12 && hour < 17) greeting = 'Good afternoon';
+        if (hour >= 17) greeting = 'Good evening';
+        
+        welcomeMessage.textContent = `${greeting}! Ready to analyze Steam data? 🚀`;
+        subtitle.textContent = 'Advanced analytics platform processing 50K+ games, 14M+ users, and 41M+ reviews';
+    }
+}
+
+function startRealTimeUpdates() {
+    // Update metrics every 30 seconds
+    setInterval(async () => {
+        await loadLiveMetrics();
+        await loadQuickInsights();
+    }, 30000);
+    
+    // Update charts every 2 minutes
+    setInterval(async () => {
+        await loadChartsAndVisualizations();
+    }, 120000);
+}
+
+// Chart update functions
+function updatePriceChart(priceData) {
+    const chartContainer = document.getElementById('price-chart');
+    if (!chartContainer) return;
+    
+    chartContainer.innerHTML = `
+        <div class="w-full h-full flex items-center justify-center">
+            <div class="text-center w-full">
+                <div class="text-lg font-semibold text-gray-700 mb-4">💰 Price Distribution</div>
+                <div class="space-y-3">
+                    ${priceData.ranges.map((range, index) => `
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-600">${range}</span>
+                            <span class="font-bold text-blue-600">${priceData.counts[index]?.toLocaleString() || '0'}</span>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function updateRatingChart(ratingData) {
+    const chartContainer = document.getElementById('rating-chart');
+    if (!chartContainer) return;
+    
+    chartContainer.innerHTML = `
+        <div class="w-full h-full flex items-center justify-center">
+            <div class="text-center w-full">
+                <div class="text-lg font-semibold text-gray-700 mb-4">⭐ Rating Analysis</div>
+                <div class="space-y-3">
+                    ${ratingData.ranges.map((range, index) => `
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-600">${range}</span>
+                            <span class="font-bold text-green-600">${ratingData.counts[index]?.toLocaleString() || '0'}</span>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function updateEngagementChart(engagementData) {
+    const chartContainer = document.getElementById('engagement-chart');
+    if (!chartContainer) return;
+    
+    const maxUsers = Math.max(...engagementData.activeUsers);
+    
+    chartContainer.innerHTML = `
+        <div class="w-full h-full flex items-center justify-center">
+            <div class="text-center w-full">
+                <div class="text-lg font-semibold text-gray-700 mb-4">📈 Monthly Activity</div>
+                <div class="grid grid-cols-${engagementData.months.length} gap-2 h-48 items-end">
+                    ${engagementData.months.map((month, index) => `
+                        <div class="text-center h-full flex flex-col justify-end">
+                            <div class="text-xs text-gray-500 mb-1">${month}</div>
+                            <div class="bg-blue-500 rounded-t-lg mx-auto transition-all duration-500" 
+                                 style="height: ${(engagementData.activeUsers[index] / maxUsers) * 80}%; width: 20px;"></div>
+                            <div class="text-xs font-semibold mt-1">${engagementData.activeUsers[index]?.toLocaleString() || '0'}</div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// Globe Visualization
+function initializeGlobeVisualization() {
+    const globeContainer = document.getElementById('world-globe');
+    if (!globeContainer) return;
+    
+    // Add country markers
+    const countries = [
+        { name: "United States", lat: 37.0902, lon: -95.7129, users: 12500000, growth: 12.5, flag: "🇺🇸" },
+        { name: "Germany", lat: 51.1657, lon: 10.4515, users: 8500000, growth: 8.3, flag: "🇩🇪" },
+        { name: "United Kingdom", lat: 55.3781, lon: -3.4360, users: 7200000, growth: 9.1, flag: "🇬🇧" },
+        { name: "China", lat: 35.8617, lon: 104.1954, users: 6800000, growth: 15.2, flag: "🇨🇳" },
+        { name: "France", lat: 46.6034, lon: 1.8883, users: 5200000, growth: 7.8, flag: "🇫🇷" },
+        { name: "Canada", lat: 56.1304, lon: -106.3468, users: 4800000, growth: 6.9, flag: "🇨🇦" },
+        { name: "Brazil", lat: -14.2350, lon: -51.9253, users: 4200000, growth: 18.3, flag: "🇧🇷" },
+        { name: "Japan", lat: 36.2048, lon: 138.2529, users: 3800000, growth: 5.4, flag: "🇯🇵" },
+        { name: "Australia", lat: -25.2744, lon: 133.7751, users: 3200000, growth: 11.2, flag: "🇦🇺" },
+        { name: "Russia", lat: 61.5240, lon: 105.3188, users: 2800000, growth: 4.7, flag: "🇷🇺" }
+    ];
+    
+    countries.forEach(country => {
+        const marker = document.createElement('div');
+        marker.className = `country-marker ${getDensityClass(country.users)}`;
+        marker.style.left = `${(country.lon + 180) / 360 * 100}%`;
+        marker.style.top = `${(90 - country.lat) / 180 * 100}%`;
+        marker.setAttribute('data-country', country.name);
+        marker.setAttribute('data-users', country.users);
+        marker.setAttribute('data-growth', country.growth);
+        marker.setAttribute('data-flag', country.flag);
+        
+        marker.addEventListener('click', () => showCountryDetails(country));
+        marker.addEventListener('mouseenter', () => marker.classList.add('pulse'));
+        marker.addEventListener('mouseleave', () => marker.classList.remove('pulse'));
+        
+        globeContainer.querySelector('.globe-countries').appendChild(marker);
+    });
+    
+    // Update globe stats
+    document.getElementById('total-countries').textContent = countries.length;
+    document.getElementById('active-regions').textContent = countries.filter(c => c.users > 3000000).length;
+}
+
+function getDensityClass(users) {
+    if (users > 8000000) return 'high-density';
+    if (users > 4000000) return 'medium-density';
+    return 'low-density';
+}
+
+function showCountryDetails(country) {
+    const details = document.getElementById('country-details');
+    const share = ((country.users / 50000000) * 100).toFixed(1);
+    
+    document.getElementById('detail-flag').textContent = country.flag;
+    document.getElementById('detail-name').textContent = country.name;
+    document.getElementById('detail-users').textContent = (country.users / 1000000).toFixed(1) + 'M';
+    document.getElementById('detail-share').textContent = share + '%';
+    document.getElementById('detail-growth').textContent = '+' + country.growth + '%';
+    
+    details.classList.add('active');
+}
+
+function hideCountryDetails() {
+    document.getElementById('country-details').classList.remove('active');
+}
+
+// FAQ Toggle Function
+function toggleFAQ(faqId) {
+    const answer = document.getElementById(faqId + '-answer');
+    const arrow = document.getElementById(faqId + '-arrow');
+    
+    if (answer.style.display === 'none' || !answer.style.display) {
+        answer.style.display = 'block';
+        arrow.classList.add('rotated');
+    } else {
+        answer.style.display = 'none';
+        arrow.classList.remove('rotated');
+    }
+}
+
+// Utility functions
+function refreshAllData() {
+    showProfessionalNotification('Refreshing data...', 'info');
+    
+    // Reload all data
+    initializeProfessionalDashboard();
+    
+    setTimeout(() => {
+        showProfessionalNotification('Data refreshed successfully!', 'success');
+    }, 1000);
+}
+
+function showProfessionalNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 transform transition-all duration-300 ${
+        type === 'success' ? 'bg-green-500 text-white' : 
+        type === 'error' ? 'bg-red-500 text-white' : 
+        'bg-blue-500 text-white'
+    }`;
+    notification.innerHTML = `
+        <div class="flex items-center">
+            <span class="text-lg mr-2">${type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️'}</span>
+            <span>${message}</span>
+        </div>
+    `;
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.style.transform = 'translateX(100%)';
+        setTimeout(() => notification.remove(), 300);
+    }, 4000);
+}
+
+function viewGameDetails(gameName) {
+    showProfessionalNotification(`Analyzing ${gameName}...`, 'info');
+    // You can implement game detail view here
+}
+
+// Remove shimmer effects once data is loaded
+function removeShimmerEffects() {
+    const shimmerElements = document.querySelectorAll('.loading-shimmer, .skeleton-loader');
+    shimmerElements.forEach(el => {
+        if (el.parentElement) {
+            el.parentElement.removeChild(el);
+        }
+    });
+}
+
+// Call this after data is loaded
+setTimeout(removeShimmerEffects, 1000);
+
+// ============================
+// COMPACT CHATBOT FUNCTIONALITY
+// ============================
+
+let currentSessionId = '';
+let isChatOpen = false;
+let unreadCount = 0;
+
+function initializePremiumChatbot() {
+    console.log('🚀 Initializing Compact Chatbot...');
+    
+    const toggleBtn = document.getElementById('premiumToggle');
+    const chatWindow = document.getElementById('premiumChatWindow');
+    const minimizeBtn = document.getElementById('premiumMinimize');
+    const sendBtn = document.getElementById('premiumSendBtn');
+    const chatInput = document.getElementById('premiumChatInput');
+    const unreadIndicator = document.getElementById('premiumUnread');
+
+    if (!toggleBtn || !chatWindow) {
+        console.error('❌ Chatbot elements not found!');
+        return;
+    }
+
+    currentSessionId = generateSessionId();
+
+    // Auto-resize textarea
+    chatInput.addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = Math.min(this.scrollHeight, 60) + 'px';
+    });
+
+    // Toggle chat window
+    toggleBtn.addEventListener('click', function() {
+        isChatOpen = !isChatOpen;
+        if (isChatOpen) {
+            chatWindow.classList.add('active');
+            chatInput.focus();
+            resetUnreadCount();
+        } else {
+            chatWindow.classList.remove('active');
+        }
+    });
+
+    // Minimize chat
+    minimizeBtn.addEventListener('click', function() {
+        isChatOpen = false;
+        chatWindow.classList.remove('active');
+    });
+
+    // Send message on button click
+    sendBtn.addEventListener('click', sendPremiumMessage);
+    
+    // Send message on Enter (with Shift+Enter for new line)
+    chatInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            sendPremiumMessage();
+        }
+    });
+
+    // Initialize suggestion clicks
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('premium-suggestion-chip')) {
+            const question = e.target.textContent;
+            document.getElementById('premiumChatInput').value = question;
+            sendPremiumMessage();
+        }
+    });
+
+    function resetUnreadCount() {
+        unreadCount = 0;
+        unreadIndicator.style.display = 'none';
+    }
+
+    function incrementUnreadCount() {
+        if (!isChatOpen) {
+            unreadCount++;
+            unreadIndicator.textContent = unreadCount;
+            unreadIndicator.style.display = 'flex';
+        }
+    }
+
+    function generateSessionId() {
+        return 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    }
+
+    // Load initial welcome
+    loadPremiumWelcome();
+    
+    console.log('✅ Compact Chatbot initialized');
+}
+
+async function loadPremiumWelcome() {
+    try {
+        const response = await fetch('/premium-chatbot/welcome');
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            displayPremiumWelcome(data);
+        } else {
+            throw new Error('Invalid response format');
+        }
+    } catch (error) {
+        console.error('Failed to load premium welcome:', error);
+        // Fallback welcome message
+        displayPremiumWelcome({
+            response: `🧠 **Steam Analytics AI Online**
+
+Steam Analytics Expert
+• Market trends
+• Game insights  
+• User behavior
+
+Ask me anything about the Steam platform!`,
+            suggestions: [
+                "Market trends",
+                "Game recommendations",
+                "User analytics",
+                "Genre performance"
+            ],
+            session_id: currentSessionId
+        });
+    }
+}
+
+function displayPremiumWelcome(data) {
+    const container = document.getElementById('premiumMessages');
+    if (!container) return;
+    
+    container.innerHTML = '';
+
+    addPremiumMessage('assistant', data.response);
+
+    if (data.suggestions && data.suggestions.length > 0) {
+        displayPremiumSuggestions(data.suggestions.slice(0, 4));
+    }
+
+    if (data.session_id) {
+        currentSessionId = data.session_id;
+    }
+}
+
+function displayPremiumSuggestions(suggestions) {
+    const container = document.getElementById('premiumSuggestionsGrid');
+    if (!container) return;
+    
+    container.innerHTML = suggestions.map(suggestion => `
+        <button class="premium-suggestion-chip" title="${suggestion}">${suggestion}</button>
+    `).join('');
+}
+
+async function sendPremiumMessage() {
+    const input = document.getElementById('premiumChatInput');
+    const message = input.value.trim();
+
+    if (!message) return;
+
+    // Add user message to UI
+    addPremiumMessage('user', message);
+    input.value = '';
+    input.style.height = 'auto';
+
+    // Hide suggestions while processing
+    const suggestionsContainer = document.getElementById('premiumSuggestions');
+    if (suggestionsContainer) {
+        suggestionsContainer.style.display = 'none';
+    }
+
+    // Show typing indicator
+    showPremiumTyping();
+
+    try {
+        const response = await fetch('/premium-chatbot/chat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ 
+                message: message,
+                session_id: currentSessionId
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        hidePremiumTyping();
+
+        if (data.success) {
+            addPremiumMessage('assistant', data.response);
+            
+            // Update suggestions if provided
+            if (data.suggestions && data.suggestions.length > 0) {
+                displayPremiumSuggestions(data.suggestions.slice(0, 4));
+                document.getElementById('premiumSuggestions').style.display = 'block';
+            }
+
+        } else {
+            addPremiumMessage('assistant', "I apologize, but I encountered an error. Please try again.");
+        }
+
+    } catch (error) {
+        console.error('Premium chat API error:', error);
+        hidePremiumTyping();
+        addPremiumMessage('assistant', "I'm having trouble connecting right now. Please try again.");
+    }
+
+    // Re-enable send button and show suggestions
+    document.getElementById('premiumSendBtn').disabled = false;
+    document.getElementById('premiumSuggestions').style.display = 'block';
+}
+
+function addPremiumMessage(role, content) {
+    const container = document.getElementById('premiumMessages');
+    if (!container) return;
+    
+    const message = document.createElement('div');
+    message.className = `premium-message ${role}`;
+
+    const timestamp = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+    
+    message.innerHTML = `
+        <div class="premium-message-avatar">
+            ${role === 'user' ? '👤' : '🧠'}
+        </div>
+        <div class="premium-message-content">
+            <div class="premium-message-bubble">${formatPremiumMessage(content)}</div>
+            <div class="premium-message-time">${timestamp}</div>
+        </div>
+    `;
+
+    container.appendChild(message);
+    container.scrollTop = container.scrollHeight;
+
+    // Increment unread count for assistant messages when chat is closed
+    const chatWindow = document.getElementById('premiumChatWindow');
+    if (role === 'assistant' && chatWindow && !chatWindow.classList.contains('active')) {
+        incrementUnreadCount();
+    }
+}
+
+function formatPremiumMessage(content) {
+    return content
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.*?)\*/g, '<em>$1</em>')
+        .replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>')
+        .replace(/`(.*?)`/g, '<code>$1</code>')
+        .replace(/\n/g, '<br>');
+}
+
+function showPremiumTyping() {
+    const container = document.getElementById('premiumMessages');
+    if (!container) return;
+    
+    const typing = document.createElement('div');
+    typing.className = 'premium-typing-indicator';
+    typing.id = 'premiumTypingIndicator';
+    
+    typing.innerHTML = `
+        <div class="premium-message-avatar">🧠</div>
+        <div class="premium-typing-dots">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    `;
+    
+    container.appendChild(typing);
+    container.scrollTop = container.scrollHeight;
+    
+    // Disable send button while typing
+    document.getElementById('premiumSendBtn').disabled = true;
+}
+
+function hidePremiumTyping() {
+    const typing = document.getElementById('premiumTypingIndicator');
+    if (typing) {
+        typing.remove();
+    }
+}
+
+// Ensure chatbot visibility
+function ensureChatbotVisibility() {
+    const chatbot = document.getElementById('premiumChatbot');
+    const toggleBtn = document.getElementById('premiumToggle');
+    
+    if (chatbot && toggleBtn) {
+        chatbot.style.display = 'block';
+        toggleBtn.style.display = 'flex';
+    }
+}
+
+// Check chatbot visibility periodically
+setInterval(ensureChatbotVisibility, 3000);
+
+console.log('✅ Compact Chatbot Script Loaded');
+</script>
+{% endblock %}

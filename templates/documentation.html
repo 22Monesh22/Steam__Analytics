@@ -1,0 +1,634 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Documentation - Steam Analytics{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 py-8">
+    <div class="max-w-6xl mx-auto px-6">
+        <!-- Header -->
+        <div class="text-center mb-12">
+            <h1 class="text-4xl font-bold text-gray-900 mb-4">📚 Documentation</h1>
+            <p class="text-xl text-gray-600">Complete guide to using Steam Analytics Platform</p>
+        </div>
+
+        <!-- Quick Access Cards -->
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8 mb-12">
+            <!-- Quick Start -->
+            <div class="bg-white rounded-2xl p-6 shadow-lg border border-gray-200 hover:shadow-xl transition-shadow">
+                <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-4">
+                    <span class="text-2xl">🚀</span>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-900 mb-3">Quick Start</h3>
+                <p class="text-gray-600 mb-4">Get up and running in 5 minutes with our step-by-step guide.</p>
+                <a href="#quick-start" class="text-blue-600 font-medium hover:text-blue-700">View Guide →</a>
+            </div>
+
+            <!-- AI Insights Guide -->
+            <div class="bg-white rounded-2xl p-6 shadow-lg border border-gray-200 hover:shadow-xl transition-shadow">
+                <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mb-4">
+                    <span class="text-2xl">🤖</span>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-900 mb-3">AI Insights</h3>
+                <p class="text-gray-600 mb-4">Learn how to leverage AI for deeper data analysis and predictions.</p>
+                <a href="#ai-insights" class="text-blue-600 font-medium hover:text-blue-700">Learn More →</a>
+            </div>
+
+            <!-- API Reference -->
+            <div class="bg-white rounded-2xl p-6 shadow-lg border border-gray-200 hover:shadow-xl transition-shadow">
+                <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mb-4">
+                    <span class="text-2xl">🔌</span>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-900 mb-3">API Reference</h3>
+                <p class="text-gray-600 mb-4">Complete API documentation for developers and integrations.</p>
+                <a href="#api-reference" class="text-blue-600 font-medium hover:text-blue-700">View API Docs →</a>
+            </div>
+
+            <!-- Future Implementation -->
+            <div class="bg-white rounded-2xl p-6 shadow-lg border border-gray-200 hover:shadow-xl transition-shadow cursor-pointer" onclick="toggleFutureUpdates()">
+                <div class="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center mb-4">
+                    <span class="text-2xl">🔮</span>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-900 mb-3">Future Updates</h3>
+                <p class="text-gray-600 mb-4">See what's coming next in our development roadmap.</p>
+                <div class="text-orange-600 font-medium hover:text-orange-700">View Roadmap →</div>
+            </div>
+        </div>
+
+        <!-- Future Implementation Section (Initially Hidden) -->
+        <div id="future-updates" class="bg-white rounded-2xl shadow-lg border border-orange-200 p-8 mb-8 hidden">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-3xl font-bold text-orange-900">🔮 Future Implementation Roadmap</h2>
+                <button onclick="toggleFutureUpdates()" class="text-gray-500 hover:text-gray-700">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Real-time Data Updates -->
+            <div class="mb-8">
+                <h3 class="text-2xl font-bold text-gray-900 mb-4">🔄 Real-time Data Integration</h3>
+                <div class="bg-orange-50 p-6 rounded-xl mb-4">
+                    <h4 class="font-semibold text-orange-900 mb-3">Live CSV Data Synchronization</h4>
+                    <ul class="text-gray-700 space-y-2">
+                        <li class="flex items-start">
+                            <span class="text-green-600 mr-2">🔄</span>
+                            <span><strong>Automatic File Monitoring:</strong> Real-time detection of CSV file changes</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-green-600 mr-2">⚡</span>
+                            <span><strong>Instant Dashboard Updates:</strong> Automatic refresh when data changes</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-green-600 mr-2">📊</span>
+                            <span><strong>Data Validation:</strong> Automated quality checks and error handling</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-green-600 mr-2">🔔</span>
+                            <span><strong>Change Notifications:</strong> Alert users when data is updated</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Power BI API Integration -->
+            <div class="mb-8">
+                <h3 class="text-2xl font-bold text-gray-900 mb-4">📊 Power BI API Integration</h3>
+                <div class="bg-blue-50 p-6 rounded-xl mb-4">
+                    <h4 class="font-semibold text-blue-900 mb-3">Enhanced Dashboard Capabilities</h4>
+                    <ul class="text-gray-700 space-y-2">
+                        <li class="flex items-start">
+                            <span class="text-blue-600 mr-2">🔐</span>
+                            <span><strong>Power BI REST API:</strong> Direct integration with Microsoft Power BI service</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-blue-600 mr-2">📈</span>
+                            <span><strong>Dynamic Embedding:</strong> Programmatic dashboard embedding and control</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-blue-600 mr-2">🔄</span>
+                            <span><strong>Automated Refresh:</strong> Schedule and trigger dataset refreshes via API</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-blue-600 mr-2">👥</span>
+                            <span><strong>User Context:</strong> Row-level security and personalized views</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Advanced AI Features -->
+            <div class="mb-8">
+                <h3 class="text-2xl font-bold text-gray-900 mb-4">🤖 Advanced AI & Machine Learning</h3>
+                <div class="bg-purple-50 p-6 rounded-xl mb-4">
+                    <h4 class="font-semibold text-purple-900 mb-3">Next-Generation Analytics</h4>
+                    <ul class="text-gray-700 space-y-2">
+                        <li class="flex items-start">
+                            <span class="text-purple-600 mr-2">🎯</span>
+                            <span><strong>Predictive Analytics:</strong> Game success prediction models</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-purple-600 mr-2">📊</span>
+                            <span><strong>Sentiment Analysis 2.0:</strong> Advanced NLP for review analysis</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-purple-600 mr-2">🔮</span>
+                            <span><strong>Trend Forecasting:</strong> Market trend prediction with 90%+ accuracy</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-purple-600 mr-2">💬</span>
+                            <span><strong>Voice-Enabled AI:</strong> Voice commands for dashboard navigation</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Professional Features -->
+            <div class="mb-8">
+                <h3 class="text-2xl font-bold text-gray-900 mb-4">💼 Professional & Enterprise Features</h3>
+                <div class="bg-green-50 p-6 rounded-xl mb-4">
+                    <h4 class="font-semibold text-green-900 mb-3">Business-Grade Capabilities</h4>
+                    <ul class="text-gray-700 space-y-2">
+                        <li class="flex items-start">
+                            <span class="text-green-600 mr-2">🏢</span>
+                            <span><strong>Multi-Tenant Architecture:</strong> Support for multiple organizations</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-green-600 mr-2">📋</span>
+                            <span><strong>Advanced Reporting:</strong> Custom report builder with scheduling</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-green-600 mr-2">🔐</span>
+                            <span><strong>Enterprise Security:</strong> SSO, 2FA, and compliance features</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-green-600 mr-2">🌐</span>
+                            <span><strong>API Marketplace:</strong> Third-party integrations and extensions</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Technical Enhancements -->
+            <div class="mb-8">
+                <h3 class="text-2xl font-bold text-gray-900 mb-4">⚡ Technical Enhancements</h3>
+                <div class="bg-gray-50 p-6 rounded-xl">
+                    <h4 class="font-semibold text-gray-900 mb-3">Performance & Scalability</h4>
+                    <ul class="text-gray-700 space-y-2">
+                        <li class="flex items-start">
+                            <span class="text-gray-600 mr-2">🚀</span>
+                            <span><strong>Microservices Architecture:</strong> Scalable, independent service modules</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-gray-600 mr-2">📊</span>
+                            <span><strong>Real-time Streaming:</strong> Apache Kafka for data pipeline</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-gray-600 mr-2">🔄</span>
+                            <span><strong>CI/CD Pipeline:</strong> Automated testing and deployment</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-gray-600 mr-2">☁️</span>
+                            <span><strong>Cloud Native:</strong> Kubernetes orchestration and auto-scaling</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Timeline -->
+            <!-- Replace the existing Timeline section with this premium version -->
+<div class="bg-gradient-to-br from-gray-900 via-purple-900 to-blue-900 p-8 rounded-2xl shadow-2xl border border-purple-500/20 mb-8">
+    <!-- Header -->
+    <div class="text-center mb-8">
+        <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl mb-4 shadow-lg">
+            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+        </div>
+        <h3 class="text-3xl font-bold text-white mb-2">🚀 Implementation Roadmap</h3>
+        <p class="text-purple-200 text-lg">Strategic rollout of next-generation features</p>
+    </div>
+
+    <!-- Timeline -->
+    <div class="relative">
+        <!-- Timeline Line -->
+        <div class="absolute left-1/2 transform -translate-x-1/2 w-1 bg-gradient-to-b from-blue-500 via-purple-500 to-pink-500 h-full rounded-full"></div>
+        
+        <!-- Phase 1 -->
+        <div class="flex items-center mb-12">
+            <div class="w-1/2 pr-12 text-right">
+                <div class="bg-white/10 backdrop-blur-lg p-6 rounded-2xl border border-white/20 shadow-xl">
+                    <div class="flex items-center justify-end mb-3">
+                        <span class="inline-flex items-center px-3 py-1 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full text-xs font-semibold text-white shadow-lg">
+                            Q1 2024 • CURRENT
+                        </span>
+                    </div>
+                    <h4 class="text-xl font-bold text-white mb-3">Phase 1: Core Integration</h4>
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-end text-green-300">
+                            <span class="text-sm mr-2">Power BI API Integration</span>
+                            <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                        </div>
+                        <div class="flex items-center justify-end text-green-300">
+                            <span class="text-sm mr-2">Real-time CSV Monitoring</span>
+                            <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                        </div>
+                        <div class="flex items-center justify-end text-green-300">
+                            <span class="text-sm mr-2">Basic Predictive Models</span>
+                            <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Timeline Node -->
+            <div class="absolute left-1/2 transform -translate-x-1/2">
+                <div class="w-6 h-6 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full border-4 border-gray-900 shadow-lg ring-2 ring-green-400/50"></div>
+            </div>
+            
+            <div class="w-1/2 pl-12">
+                <div class="text-left">
+                    <div class="text-green-400 font-semibold text-lg mb-2">In Progress</div>
+                    <p class="text-gray-300 text-sm">Laying the foundation with essential integrations and real-time capabilities</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Phase 2 -->
+        <div class="flex items-center mb-12">
+            <div class="w-1/2 pr-12 text-right">
+                <div class="text-right">
+                    <div class="text-blue-400 font-semibold text-lg mb-2">Next Up</div>
+                    <p class="text-gray-300 text-sm">Advanced intelligence and enterprise-grade security features</p>
+                </div>
+            </div>
+            
+            <!-- Timeline Node -->
+            <div class="absolute left-1/2 transform -translate-x-1/2 mt-16">
+                <div class="w-6 h-6 bg-gradient-to-r from-blue-400 to-cyan-500 rounded-full border-4 border-gray-900 shadow-lg ring-2 ring-blue-400/50"></div>
+            </div>
+            
+            <div class="w-1/2 pl-12">
+                <div class="bg-white/10 backdrop-blur-lg p-6 rounded-2xl border border-white/20 shadow-xl">
+                    <div class="flex items-center justify-start mb-3">
+                        <span class="inline-flex items-center px-3 py-1 bg-gradient-to-r from-blue-500 to-cyan-600 rounded-full text-xs font-semibold text-white shadow-lg">
+                            Q2 2024 • PLANNED
+                        </span>
+                    </div>
+                    <h4 class="text-xl font-bold text-white mb-3">Phase 2: AI & Security</h4>
+                    <div class="space-y-2">
+                        <div class="flex items-center text-blue-300">
+                            <div class="w-2 h-2 bg-blue-400 rounded-full mr-2"></div>
+                            <span class="text-sm">Advanced AI Features</span>
+                        </div>
+                        <div class="flex items-center text-blue-300">
+                            <div class="w-2 h-2 bg-blue-400 rounded-full mr-2"></div>
+                            <span class="text-sm">Enterprise Security Suite</span>
+                        </div>
+                        <div class="flex items-center text-blue-300">
+                            <div class="w-2 h-2 bg-blue-400 rounded-full mr-2"></div>
+                            <span class="text-sm">Multi-tenant Support</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Phase 3 -->
+        <div class="flex items-center">
+            <div class="w-1/2 pr-12 text-right">
+                <div class="bg-white/10 backdrop-blur-lg p-6 rounded-2xl border border-white/20 shadow-xl">
+                    <div class="flex items-center justify-end mb-3">
+                        <span class="inline-flex items-center px-3 py-1 bg-gradient-to-r from-purple-500 to-pink-600 rounded-full text-xs font-semibold text-white shadow-lg">
+                            Q3 2024 • FUTURE
+                        </span>
+                    </div>
+                    <h4 class="text-xl font-bold text-white mb-3">Phase 3: Scale & Ecosystem</h4>
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-end text-purple-300">
+                            <span class="text-sm mr-2">Microservices Migration</span>
+                            <div class="w-2 h-2 bg-purple-400 rounded-full"></div>
+                        </div>
+                        <div class="flex items-center justify-end text-purple-300">
+                            <span class="text-sm mr-2">Cloud Native Deployment</span>
+                            <div class="w-2 h-2 bg-purple-400 rounded-full"></div>
+                        </div>
+                        <div class="flex items-center justify-end text-purple-300">
+                            <span class="text-sm mr-2">API Marketplace</span>
+                            <div class="w-2 h-2 bg-purple-400 rounded-full"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Timeline Node -->
+            <div class="absolute left-1/2 transform -translate-x-1/2">
+                <div class="w-6 h-6 bg-gradient-to-r from-purple-400 to-pink-500 rounded-full border-4 border-gray-900 shadow-lg ring-2 ring-purple-400/50"></div>
+            </div>
+            
+            <div class="w-1/2 pl-12">
+                <div class="text-left">
+                    <div class="text-purple-400 font-semibold text-lg mb-2">Vision</div>
+                    <p class="text-gray-300 text-sm">Scalable architecture and ecosystem expansion for maximum impact</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Progress Stats -->
+    <div class="grid grid-cols-3 gap-6 mt-12 pt-8 border-t border-white/10">
+        <div class="text-center">
+            <div class="text-3xl font-bold text-green-400 mb-2">25%</div>
+            <div class="text-gray-400 text-sm">Overall Progress</div>
+            <div class="w-full bg-gray-700 rounded-full h-2 mt-2">
+                <div class="bg-gradient-to-r from-green-400 to-emerald-500 h-2 rounded-full" style="width: 25%"></div>
+            </div>
+        </div>
+        <div class="text-center">
+            <div class="text-3xl font-bold text-blue-400 mb-2">3/12</div>
+            <div class="text-gray-400 text-sm">Features Live</div>
+            <div class="w-full bg-gray-700 rounded-full h-2 mt-2">
+                <div class="bg-gradient-to-r from-blue-400 to-cyan-500 h-2 rounded-full" style="width: 25%"></div>
+            </div>
+        </div>
+        <div class="text-center">
+            <div class="text-3xl font-bold text-purple-400 mb-2">9</div>
+            <div class="text-gray-400 text-sm">Features Planned</div>
+            <div class="w-full bg-gray-700 rounded-full h-2 mt-2">
+                <div class="bg-gradient-to-r from-purple-400 to-pink-500 h-2 rounded-full" style="width: 75%"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CTA Button -->
+    <div class="text-center mt-8">
+        <button class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-xl shadow-lg transition-all duration-300 transform hover:scale-105">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+            </svg>
+            Track Progress Updates
+        </button>
+    </div>
+</div>
+
+        <!-- Rest of your existing documentation content -->
+        <!-- Detailed Documentation -->
+        <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-8">
+            <!-- Platform Overview -->
+            <section id="platform-overview" class="mb-12">
+                <h2 class="text-3xl font-bold text-gray-900 mb-6">🏢 Platform Overview</h2>
+                <div class="prose prose-lg max-w-none">
+                    <p class="text-gray-700 mb-6">
+                        The Steam Analytics Platform is a comprehensive business intelligence solution that transforms 
+                        41+ million Steam reviews into actionable insights using advanced AI and machine learning.
+                    </p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                        <div class="bg-blue-50 p-6 rounded-xl">
+                            <h4 class="font-semibold text-blue-900 mb-3">🎯 What We Do</h4>
+                            <ul class="text-gray-700 space-y-2">
+                                <li>• Analyze 41M+ Steam reviews and user data</li>
+                                <li>• Provide real-time market trend analysis</li>
+                                <li>• Generate AI-powered game recommendations</li>
+                                <li>• Track user behavior and engagement metrics</li>
+                                <li>• Predict market trends and game performance</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="bg-green-50 p-6 rounded-xl">
+                            <h4 class="font-semibold text-green-900 mb-3">🏗️ Architecture</h4>
+                            <ul class="text-gray-700 space-y-2">
+                                <li>• <strong>Frontend:</strong> Flask + Jinja2 + Tailwind CSS</li>
+                                <li>• <strong>Backend:</strong> Python + SQLAlchemy + Redis</li>
+                                <li>• <strong>AI/ML:</strong> Custom ML models for recommendations</li>
+                                <li>• <strong>Data:</strong> 10K+ games, 2.5M+ users analyzed</li>
+                                <li>• <strong>Deployment:</strong> Docker + Nginx</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Quick Start Guide -->
+            <section id="quick-start" class="mb-12">
+                <h2 class="text-3xl font-bold text-gray-900 mb-6">🚀 Quick Start Guide</h2>
+                <div class="space-y-6">
+                    <div class="flex items-start space-x-4">
+                        <div class="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold">1</div>
+                        <div>
+                            <h4 class="font-semibold text-gray-900 mb-2">Account Creation</h4>
+                            <p class="text-gray-700">Register using the signup page or use demo credentials for immediate access.</p>
+                            <code class="text-sm bg-gray-100 px-2 py-1 rounded mt-2 inline-block">Demo: demo / demo123</code>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-start space-x-4">
+                        <div class="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold">2</div>
+                        <div>
+                            <h4 class="font-semibold text-gray-900 mb-2">Dashboard Navigation</h4>
+                            <p class="text-gray-700">Access three main dashboards from the overview page:</p>
+                            <ul class="text-gray-700 mt-2 space-y-1">
+                                <li>• <strong>User Analytics:</strong> User behavior and demographics</li>
+                                <li>• <strong>Game Analytics:</strong> Game performance and trends</li>
+                                <li>• <strong>AI Recommendations:</strong> Personalized insights</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-start space-x-4">
+                        <div class="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold">3</div>
+                        <div>
+                            <h4 class="font-semibold text-gray-900 mb-2">AI Assistant</h4>
+                            <p class="text-gray-700">Use the chatbot in the bottom-right corner for instant insights and data explanations.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- User Access Guide -->
+            <section id="user-access" class="mb-12">
+                <h2 class="text-3xl font-bold text-gray-900 mb-6">👤 User Access & Features</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div>
+                        <h4 class="font-semibold text-gray-900 mb-4">🔐 Authentication System</h4>
+                        <ul class="text-gray-700 space-y-3">
+                            <li class="flex items-start">
+                                <span class="text-green-600 mr-2">✓</span>
+                                <span>Secure JWT-based authentication</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-green-600 mr-2">✓</span>
+                                <span>Role-based access control (Admin/User)</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-green-600 mr-2">✓</span>
+                                <span>Session management with Redis caching</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-green-600 mr-2">✓</span>
+                                <span>Password hashing with bcrypt</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div>
+                        <h4 class="font-semibold text-gray-900 mb-4">🎯 Available Features</h4>
+                        <ul class="text-gray-700 space-y-3">
+                            <li class="flex items-start">
+                                <span class="text-blue-600 mr-2">📊</span>
+                                <span>Interactive Power BI dashboards</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-blue-600 mr-2">🤖</span>
+                                <span>AI-powered chatbot for insights</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-blue-600 mr-2">📈</span>
+                                <span>Real-time data visualization</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-blue-600 mr-2">💾</span>
+                                <span>Data export and reporting</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- AI Insights Guide -->
+            <section id="ai-insights" class="mb-12">
+                <h2 class="text-3xl font-bold text-gray-900 mb-6">🤖 AI Insights & Analytics</h2>
+                <div class="bg-purple-50 p-6 rounded-xl mb-6">
+                    <h4 class="font-semibold text-purple-900 mb-3">AI-Powered Features</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h5 class="font-medium text-gray-900 mb-2">🎯 Recommendation Engine</h5>
+                            <p class="text-gray-700 text-sm">Personalized game suggestions based on user behavior and preferences using collaborative filtering.</p>
+                        </div>
+                        <div>
+                            <h5 class="font-medium text-gray-900 mb-2">📊 Sentiment Analysis</h5>
+                            <p class="text-gray-700 text-sm">Analyze review sentiments to understand user satisfaction and game reception.</p>
+                        </div>
+                        <div>
+                            <h5 class="font-medium text-gray-900 mb-2">🔮 Trend Prediction</h5>
+                            <p class="text-gray-700 text-sm">Predict market trends and game performance using time-series analysis.</p>
+                        </div>
+                        <div>
+                            <h5 class="font-medium text-gray-900 mb-2">💬 AI Chatbot</h5>
+                            <p class="text-gray-700 text-sm">Get instant answers to data questions and generate custom reports.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- API Reference -->
+            <section id="api-reference" class="mb-12">
+                <h2 class="text-3xl font-bold text-gray-900 mb-6">🔌 API Reference</h2>
+                <div class="bg-gray-100 p-6 rounded-xl">
+                    <h4 class="font-semibold text-gray-900 mb-4">Available Endpoints</h4>
+                    <div class="space-y-4">
+                        <div class="bg-white p-4 rounded-lg">
+                            <code class="text-sm bg-blue-100 text-blue-800 px-2 py-1 rounded">GET /api/analytics/user-behavior</code>
+                            <p class="text-gray-700 mt-2">Retrieve user behavior analytics and engagement metrics.</p>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg">
+                            <code class="text-sm bg-green-100 text-green-800 px-2 py-1 rounded">POST /api/ai/generate-insights</code>
+                            <p class="text-gray-700 mt-2">Generate AI-powered insights based on specific criteria.</p>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg">
+                            <code class="text-sm bg-purple-100 text-purple-800 px-2 py-1 rounded">GET /api/games/recommendations</code>
+                            <p class="text-gray-700 mt-2">Get personalized game recommendations for users.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Technical Architecture -->
+            <section id="architecture" class="mb-12">
+                <h2 class="text-3xl font-bold text-gray-900 mb-6">🏗️ Technical Architecture</h2>
+                <div class="bg-gray-50 p-6 rounded-xl">
+                    <h4 class="font-semibold text-gray-900 mb-4">Project Structure Highlights</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+                        <div>
+                            <h5 class="font-medium text-gray-900 mb-2">📁 Core Modules</h5>
+                            <ul class="text-gray-700 space-y-1">
+                                <li><code>/auth/</code> - Authentication & security</li>
+                                <li><code>/app/services/</code> - Business logic & AI engines</li>
+                                <li><code>/app/models/</code> - Database models</li>
+                                <li><code>/data/</code> - ETL pipelines & ML models</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h5 class="font-medium text-gray-900 mb-2">🔧 Key Technologies</h5>
+                            <ul class="text-gray-700 space-y-1">
+                                <li>Flask + SQLAlchemy (Backend)</li>
+                                <li>Tailwind CSS + JavaScript (Frontend)</li>
+                                <li>Redis (Caching & Sessions)</li>
+                                <li>Docker + Nginx (Deployment)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Support & Contact -->
+            <section id="support">
+                <h2 class="text-3xl font-bold text-gray-900 mb-6">💬 Support & Contact</h2>
+                <div class="bg-blue-50 p-6 rounded-xl">
+                    <p class="text-gray-700 mb-4">
+                        Need help? Here's how to get support:
+                    </p>
+                    <ul class="text-gray-700 space-y-2">
+                        <li>• Use the AI chatbot for instant help</li>
+                        <li>• Check the FAQ section in your dashboard</li>
+                        <li>• Contact support: <code>support@steam-analytics.com</code></li>
+                        <li>• View system status in the admin panel</li>
+                    </ul>
+                </div>
+            </section>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleFutureUpdates() {
+    const futureUpdates = document.getElementById('future-updates');
+    futureUpdates.classList.toggle('hidden');
+    
+    // Scroll to the section if opening
+    if (!futureUpdates.classList.contains('hidden')) {
+        futureUpdates.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+}
+</script>
+
+<style>
+.hidden {
+    display: none;
+}
+
+/* Smooth transitions for the future updates section */
+#future-updates {
+    transition: all 0.3s ease-in-out;
+}
+
+/* Custom scrollbar for better UX */
+#future-updates::-webkit-scrollbar {
+    width: 6px;
+}
+
+#future-updates::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+#future-updates::-webkit-scrollbar-thumb {
+    background: #ff8c00;
+    border-radius: 3px;
+}
+
+#future-updates::-webkit-scrollbar-thumb:hover {
+    background: #e67e00;
+}
+</style>
+{% endblock %}

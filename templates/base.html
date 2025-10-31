@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Steam Analytics{% endblock %}</title>
+    
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Chatbot Styles -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/components/chatbot.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/components/chat-widget.css') }}">
+    
+    <style>
+        /* Sidebar States */
+        .sidebar-collapsed {
+            width: 5rem !important;
+        }
+        .sidebar-expanded {
+            width: 16rem !important;
+        }
+        /* Debug borders */
+        #sidebar { border-bottom: 2px solid red !important; }
+        #mainHeader { border-bottom: 2px solid blue !important; }
+        /* Main Content States */
+        .main-content-collapsed {
+            margin-left: 5rem !important;
+        }
+        .main-content-expanded {
+            margin-left: 16rem !important;
+        }
+        header-collapsed {
+            left: 5rem !important;  /* 80px */
+        }
+        .header-expanded {
+            left: 16rem !important; /* 256px */}
+        /* Header States */
+        .header-collapsed {
+            left: 5rem !important;
+        }
+        .header-expanded {
+            left: 16rem !important;
+        }
+        
+        /* Add this to your base.css or in the template */
+.premium-chatbot-wrapper {
+    position: fixed !important;
+    bottom: 20px !important;
+    right: 20px !important;
+    z-index: 9999 !important;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.powerbi-container {
+    position: relative;
+    width: 100%;
+    height: calc(100vh - 200px); /* Reduced height to accommodate chatbot */
+    background: #f8f9fa;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+
+/* Ensure Power BI frame doesn't overlap */
+.powerbi-frame {
+    width: 100%;
+    height: 100%;
+    border: none;
+    background: white;
+    z-index: 1;
+}
+        /* Text Transitions */
+        .nav-text-hidden {
+            opacity: 0;
+            width: 0;
+            overflow: hidden;
+            margin: 0;
+        }
+        .nav-text-visible {
+            opacity: 1;
+            width: auto;
+        }
+        
+        /* Mobile Styles */
+        @media (max-width: 1024px) {
+            .sidebar-expanded, .sidebar-collapsed {
+                transform: translateX(-100%);
+            }
+            .sidebar-mobile-open {
+                transform: translateX(0) !important;
+            }
+            .main-content-expanded, .main-content-collapsed {
+                margin-left: 0 !important;
+            }
+            .header-expanded, .header-collapsed {
+                left: 0 !important;
+            }
+        }
+
+        /* Smooth transitions */
+        .smooth-transition {
+            transition: all 0.3s ease-in-out;
+        }
+    </style>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="bg-gray-50">
+    <!-- Mobile Overlay -->
+    <div class="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden hidden" id="mobileOverlay"></div>
+    
+    <!-- Sidebar -->
+    {% include 'components/sidebar.html' %}
+    
+    <!-- Main Content -->
+    <main class="min-h-screen smooth-transition main-content-expanded" id="mainContent">
+        <!-- Header -->
+        {% include 'components/header.html' %}
+        
+        <!-- Page Content -->
+        <div class="p-6 pt-24 lg:pt-20">
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <script>
+        // Global sidebar state
+        let isSidebarCollapsed = false;
+        let isMobileSidebarOpen = false;
+
+        // Toggle sidebar function
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            const header = document.getElementById('mainHeader');
+            const toggleArrow = document.getElementById('toggleArrow');
+            const sidebarTexts = document.querySelectorAll('.sidebar-text');
+            
+            isSidebarCollapsed = !isSidebarCollapsed;
+            
+            if (isSidebarCollapsed) {
+                // Collapse sidebar
+                sidebar.classList.remove('sidebar-expanded');
+                sidebar.classList.add('sidebar-collapsed');
+                mainContent.classList.remove('main-content-expanded');
+                mainContent.classList.add('main-content-collapsed');
+                header.classList.remove('header-expanded');
+                header.classList.add('header-collapsed');
+                
+                // Hide text and rotate arrow
+                sidebarTexts.forEach(text => {
+                    text.classList.add('nav-text-hidden');
+                    text.classList.remove('nav-text-visible');
+                });
+                toggleArrow.style.transform = 'rotate(180deg)';
+                
+            } else {
+                // Expand sidebar
+                sidebar.classList.remove('sidebar-collapsed');
+                sidebar.classList.add('sidebar-expanded');
+                mainContent.classList.remove('main-content-collapsed');
+                mainContent.classList.add('main-content-expanded');
+                header.classList.remove('header-collapsed');
+                header.classList.add('header-expanded');
+                
+                // Show text and rotate arrow back
+                sidebarTexts.forEach(text => {
+                    text.classList.remove('nav-text-hidden');
+                    text.classList.add('nav-text-visible');
+                });
+                toggleArrow.style.transform = 'rotate(0deg)';
+            }
+        }
+
+        // Mobile sidebar toggle
+        function toggleMobileSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('mobileOverlay');
+            
+            isMobileSidebarOpen = !isMobileSidebarOpen;
+            
+            if (isMobileSidebarOpen) {
+                sidebar.classList.add('sidebar-mobile-open');
+                overlay.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            } else {
+                sidebar.classList.remove('sidebar-mobile-open');
+                overlay.classList.add('hidden');
+                document.body.style.overflow = '';
+            }
+        }
+
+        // Close mobile sidebar when clicking overlay
+        document.getElementById('mobileOverlay').addEventListener('click', function() {
+            toggleMobileSidebar();
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            // Close mobile sidebar on link click
+            document.querySelectorAll('#sidebar a').forEach(link => {
+                link.addEventListener('click', function() {
+                    if (window.innerWidth < 1024) {
+                        toggleMobileSidebar();
+                    }
+                });
+            });
+        });
+    </script>
+
+    {% block extra_js %}{% endblock %}
+
+    <!-- Chatbot Widget HTML -->
+    {% include 'components/chatbot-widget.html' %}
+    {% include 'components/chat-messages.html' %}
+
+    <!-- Chatbot Scripts -->
+    <script src="{{ url_for('static', filename='js/modules/chatbot/chat-api.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/modules/chatbot/chat-history.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/modules/chatbot/chat-ui.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/modules/chatbot/chatbot.js') }}"></script>
+
+
+    <!-- Chatbot Widget -->
+{% include 'widgets/chatbot.html' %}
+
+<!-- Chatbot JavaScript -->
+<script src="{{ url_for('static', filename='js/chatbot.js') }}"></script>
+
+<!-- Chat Message Templates -->
+{% include 'widgets/chat_messages.html' %}
+</body>
+</html>

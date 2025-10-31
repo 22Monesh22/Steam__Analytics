@@ -1,0 +1,722 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}{{ title }} - Steam Analytics{% endblock %}
+
+{% block extra_css %}
+<style>
+    .powerbi-container {
+        position: relative;
+        width: 100%;
+        height: calc(100vh - 180px);
+        background: #f8f9fa;
+        border-radius: 12px;
+        overflow: hidden;
+        margin-bottom: 15px;
+    }
+    
+    .powerbi-frame {
+        width: 100%;
+        height: 100%;
+        border: none;
+        background: white;
+    }
+    
+    .powerbi-loading {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+    }
+    
+    .dashboard-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 1.5rem;
+        border-radius: 12px 12px 0 0;
+        margin-bottom: 0;
+    }
+
+    /* Compact AI Chatbot */
+    .ai-chatbot {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 10000;
+    }
+
+    .chat-toggle {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        transition: all 0.3s ease;
+        font-size: 1.5rem;
+    }
+
+    .chat-toggle:hover {
+        transform: scale(1.1);
+    }
+
+    .chat-window {
+        position: absolute;
+        bottom: 70px;
+        right: 0;
+        width: 420px;
+        height: 550px;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        display: none;
+        flex-direction: column;
+        overflow: hidden;
+        border: 1px solid #e2e8f0;
+    }
+
+    .chat-window.active {
+        display: flex;
+    }
+
+    .chat-header {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        padding: 1rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-weight: 600;
+    }
+
+    .chat-messages {
+        flex: 1;
+        padding: 1rem;
+        overflow-y: auto;
+        background: #f8fafc;
+    }
+
+    .message {
+        margin-bottom: 0.8rem;
+        display: flex;
+        align-items: flex-start;
+    }
+
+    .message.user {
+        justify-content: flex-end;
+    }
+
+    .message-bubble {
+        max-width: 85%;
+        padding: 0.7rem 1rem;
+        border-radius: 12px;
+        font-size: 0.9rem;
+        line-height: 1.4;
+        word-wrap: break-word;
+    }
+
+    .message.user .message-bubble {
+        background: #667eea;
+        color: white;
+    }
+
+    .message.assistant .message-bubble {
+        background: white;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .chat-input-area {
+        padding: 1rem;
+        border-top: 1px solid #e2e8f0;
+        background: white;
+    }
+
+    .chat-input-wrapper {
+        display: flex;
+        gap: 0.5rem;
+        align-items: flex-end;
+    }
+
+    #chatInput {
+        flex: 1;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 0.7rem;
+        resize: none;
+        font-size: 0.9rem;
+        max-height: 80px;
+        font-family: inherit;
+    }
+
+    #chatInput:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+    }
+
+    .send-btn {
+        padding: 0.7rem 1rem;
+        background: #667eea;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        transition: background 0.2s;
+    }
+
+    .send-btn:hover {
+        background: #5a6fd8;
+    }
+
+    .suggestions {
+        padding: 0.8rem;
+        border-top: 1px solid #e2e8f0;
+        background: #f8fafc;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.3rem;
+    }
+
+    .suggestion-chip {
+        padding: 0.4rem 0.8rem;
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        font-size: 0.8rem;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .suggestion-chip:hover {
+        background: #667eea;
+        color: white;
+        border-color: #667eea;
+    }
+
+    .typing-indicator {
+        display: flex;
+        gap: 4px;
+        padding: 0.7rem 1rem;
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        width: fit-content;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .typing-dot {
+        width: 6px;
+        height: 6px;
+        background: #667eea;
+        border-radius: 50%;
+        animation: typingBounce 1.4s ease-in-out infinite both;
+    }
+
+    .typing-dot:nth-child(1) { animation-delay: 0s; }
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes typingBounce {
+        0%, 60%, 100% { transform: translateY(0); }
+        30% { transform: translateY(-3px); }
+    }
+
+    .dashboard-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 1rem;
+    }
+    .suggestions {
+    padding: 0.5rem;
+    border-top: 1px solid #e2e8f0;
+    background: #f8fafc;
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 0.4rem;
+    overflow-x: auto;
+    white-space: nowrap;
+}
+
+.suggestion-chip {
+    padding: 0.35rem 0.7rem;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    flex-shrink: 0;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-6 py-6">
+    <!-- Dashboard Header -->
+    <div class="dashboard-header">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-2xl font-bold mb-2">{{ title }}</h1>
+                <p class="text-blue-100 opacity-90 text-sm">{{ description }}</p>
+            </div>
+            <div class="flex space-x-2">
+                <a href="{{ url_for('powerbi.dashboards') }}" 
+                   class="px-3 py-1 bg-white bg-opacity-20 hover:bg-opacity-30 rounded-lg transition duration-200 text-white font-medium text-sm">
+                    All Dashboards
+                </a>
+                <button onclick="refreshDashboard()" 
+                        class="px-3 py-1 bg-white bg-opacity-20 hover:bg-opacity-30 rounded-lg transition duration-200 text-white font-medium text-sm">
+                    Refresh
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Power BI Dashboard Container -->
+    <div class="powerbi-container shadow-lg">
+        {% if dashboard_url %}
+            <iframe class="powerbi-frame" 
+                    src="{{ dashboard_url }}"
+                    id="powerbiFrame"
+                    onload="hideLoading()"
+                    allowfullscreen>
+            </iframe>
+        {% else %}
+            <div class="powerbi-loading">
+                <div class="text-center">
+                    <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Dashboard Not Configured</h3>
+                    <p class="text-gray-600 text-sm">Please check your environment variables.</p>
+                </div>
+            </div>
+        {% endif %}
+        
+        <!-- Loading State -->
+        <div id="loadingState" class="powerbi-loading">
+            <div class="text-center">
+                <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600 mx-auto mb-3"></div>
+                <h3 class="text-md font-semibold text-gray-900 mb-2">Loading Dashboard</h3>
+                <p class="text-gray-600 text-sm">Please wait...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard Actions -->
+    <div class="dashboard-actions">
+        <div class="text-sm text-gray-600">
+            <span id="lastUpdated">Last updated: Just now</span>
+        </div>
+        <div class="flex space-x-2">
+            <button onclick="toggleFullscreen()" 
+                    class="px-3 py-1 bg-gray-600 hover:bg-gray-700 rounded-lg transition duration-200 text-white font-medium text-sm">
+                Fullscreen
+            </button>
+            <a href="{{ url_for('dashboard.overview') }}" 
+               class="px-3 py-1 bg-blue-600 hover:bg-blue-700 rounded-lg transition duration-200 text-white font-medium text-sm">
+                Back to Overview
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- AI Chatbot -->
+<div class="ai-chatbot">
+    <div class="chat-toggle" onclick="toggleChat()">
+        <svg class="w-7 h-7" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/>
+        </svg>
+    </div>
+    
+    <div class="chat-window" id="chatWindow">
+        <div class="chat-header">
+            <div class="flex items-center">
+                <i class="fas fa-chart-bar mr-2"></i>
+                <span>Power BI Assistant</span>
+            </div>
+            <button onclick="toggleChat()" class="text-white hover:text-gray-200 text-lg">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <div class="chat-messages" id="chatMessages">
+            <div class="message assistant">
+                <div class="message-bubble">
+                    <strong>👋 Hello! I'm your Power BI Assistant</strong><br><br>
+                    I can help you analyze this <span id="dashboardName">{{ title }}</span> dashboard. Ask me about:
+                    <br>• Data insights and trends
+                    <br>• Metric explanations
+                    <br>• Performance analysis
+                    <br>• Recommendations
+                </div>
+            </div>
+        </div>
+
+        <div class="suggestions" id="suggestions">
+            <div class="suggestion-chip" onclick="askAI('Explain the key metrics in this dashboard')">Key Metrics</div>
+            <div class="suggestion-chip" onclick="askAI('What are the main insights from this data?')">Main Insights</div>
+            <div class="suggestion-chip" onclick="askAI('Show performance trends and analysis')">Performance Trends</div>
+            <div class="suggestion-chip" onclick="askAI('Provide recommendations based on this data')">Recommendations</div>
+        </div>
+        
+        <div class="chat-input-area">
+            <div class="chat-input-wrapper">
+                <textarea id="chatInput" placeholder="Ask about Power BI insights, metrics, or analysis..." rows="2"></textarea>
+                <button class="send-btn" onclick="sendMessage()">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+            <div class="flex justify-between items-center mt-2">
+                <div class="text-xs text-gray-500">
+                    <span id="charCount">0</span>/500
+                </div>
+                <div class="text-xs text-gray-500">
+                    Powered by AI
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Power BI Dashboard Functions
+function hideLoading() {
+    const loadingState = document.getElementById('loadingState');
+    if (loadingState) {
+        loadingState.style.display = 'none';
+    }
+}
+
+function refreshDashboard() {
+    const iframe = document.getElementById('powerbiFrame');
+    if (iframe) {
+        const loadingState = document.getElementById('loadingState');
+        if (loadingState) {
+            loadingState.style.display = 'block';
+        }
+        iframe.src = iframe.src;
+    }
+}
+
+function toggleFullscreen() {
+    const container = document.querySelector('.powerbi-container');
+    if (!document.fullscreenElement) {
+        container.requestFullscreen().catch(err => {
+            console.error(`Error attempting to enable fullscreen: ${err.message}`);
+        });
+    } else {
+        document.exitFullscreen();
+    }
+}
+
+function updateLastUpdated() {
+    const now = new Date();
+    const lastUpdatedElement = document.getElementById('lastUpdated');
+    if (lastUpdatedElement) {
+        lastUpdatedElement.textContent = 'Last updated: ' + now.toLocaleTimeString();
+    }
+}
+
+// Initialize
+setTimeout(hideLoading, 10000);
+setInterval(updateLastUpdated, 60000);
+
+// AI Chatbot Functions
+let chatOpen = false;
+
+function toggleChat() {
+    const chatWindow = document.getElementById('chatWindow');
+    chatOpen = !chatOpen;
+    chatWindow.classList.toggle('active', chatOpen);
+    
+    if (chatOpen) {
+        document.getElementById('chatInput').focus();
+    }
+}
+
+function askAI(question) {
+    if (!chatOpen) toggleChat();
+    document.getElementById('chatInput').value = question;
+    sendMessage();
+}
+
+// Enhanced sendMessage function with Power BI AI integration
+async function sendMessage() {
+    const input = document.getElementById('chatInput');
+    const message = input.value.trim();
+    
+    if (!message) return;
+    
+    addMessage('user', message);
+    input.value = '';
+    updateCharCount(0);
+    resizeTextarea(input);
+    
+    showTyping();
+    
+    try {
+        // Use the new Power BI AI endpoint
+        const response = await fetch('/smart-chat/analyze-powerbi', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                message: message,
+                dashboard_type: getDashboardTypeFromURL(),
+                context: 'powerbi_dashboard'
+            })
+        });
+        
+        const data = await response.json();
+        hideTyping();
+        
+        if (data.success) {
+            addMessage('assistant', data.response);
+            
+            // Update suggestions if provided
+            if (data.suggestions && data.suggestions.length > 0) {
+                updateDynamicSuggestions(data.suggestions);
+            }
+        } else {
+            addMessage('assistant', data.response || 'Unable to analyze the dashboard. Please try again.');
+        }
+        
+    } catch (error) {
+        console.error('Chat error:', error);
+        hideTyping();
+        addMessage('assistant', "I'm having trouble connecting to the analysis service. Please try again.");
+    }
+}
+
+// Enhanced dashboard detection
+function getDashboardTypeFromURL() {
+    const path = window.location.pathname.toLowerCase();
+    if (path.includes('user-analytics')) return 'user-analytics';
+    if (path.includes('game-analytics')) return 'game-analytics';
+    if (path.includes('recommendation-engine')) return 'recommendation-engine';
+    
+    // Fallback to URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get('dashboard_type') || 'game-analytics';
+}
+
+// Professional welcome messages for each dashboard
+function getProfessionalWelcomeMessage() {
+    const dashboardType = getDashboardTypeFromURL();
+    const dashboardName = document.getElementById('dashboardName')?.textContent || 'this dashboard';
+    
+    const welcomeMessages = {
+        'game-analytics': `👋 **Welcome to Game Analytics - Professional AI Assistant**
+
+I'm your specialized AI for game market intelligence and Power BI analysis.
+
+🎯 **I can help you with:**
+• Real data analysis from your CSV datasets
+• Power BI dashboard navigation and insights  
+• Game rating distributions and trends
+• Pricing strategy optimization
+• Market positioning recommendations
+
+📊 **Current Focus:** ${dashboardName}
+
+💡 **Try asking:** "Analyze rating patterns" or "Compare genre performance"`,
+
+        'user-analytics': `👋 **Welcome to User Analytics - Professional AI Assistant**
+
+I'm your user intelligence specialist for engagement analytics.
+
+🎯 **I can help you with:**
+• User segmentation analysis (New, Casual, Elite)
+• Engagement pattern identification
+• Retention strategy optimization  
+• Geographic and behavioral insights
+• Power BI dashboard guidance
+
+📊 **Current Focus:** ${dashboardName}
+
+💡 **Try asking:** "Analyze user engagement" or "Compare segment performance"`,
+
+        'recommendation-engine': `👋 **Welcome to Recommendation Analytics - Professional AI Assistant**
+
+I'm your temporal analytics expert for trend analysis.
+
+🎯 **I can help you with:**
+• Seasonal pattern identification
+• Engagement trend forecasting
+• Peak performance optimization
+• Growth opportunity analysis
+• Power BI time-based insights
+
+📊 **Current Focus:** ${dashboardName}
+
+💡 **Try asking:** "Analyze monthly trends" or "Identify peak patterns"`
+    };
+    
+    return welcomeMessages[dashboardType] || welcomeMessages['game-analytics'];
+}
+
+// Professional suggestions for each dashboard
+function updateProfessionalSuggestions() {
+    const dashboardType = getDashboardTypeFromURL();
+    const suggestions = document.getElementById('suggestions');
+    
+    const professionalSuggestions = {
+        'game-analytics': [
+            "Analyze rating distribution patterns",
+            "Compare genre performance metrics", 
+            "Optimize pricing strategies",
+            "Identify market trend opportunities"
+        ],
+        'user-analytics': [
+            "Segment engagement analysis",
+            "User retention optimization",
+            "Geographic distribution insights", 
+            "Acquisition channel effectiveness"
+        ],
+        'recommendation-engine': [
+            "Monthly trend pattern analysis",
+            "Peak engagement optimization", 
+            "Growth trajectory forecasting",
+            "Seasonal impact assessment"
+        ]
+    };
+    
+    const dashboardSuggestions = professionalSuggestions[dashboardType] || professionalSuggestions['game-analytics'];
+    
+    if (suggestions) {
+        suggestions.innerHTML = dashboardSuggestions.map(suggestion => 
+            `<div class="suggestion-chip" onclick="askAI('${suggestion.replace(/'/g, "\\'")}')">${suggestion}</div>`
+        ).join('');
+    }
+}
+
+// Dynamic suggestions update
+function updateDynamicSuggestions(suggestions) {
+    const container = document.getElementById('suggestions');
+    if (container && suggestions && Array.isArray(suggestions)) {
+        const safeSuggestions = suggestions.map(suggestion => 
+            suggestion.replace(/'/g, "\\'").replace(/"/g, "&quot;")
+        );
+        
+        container.innerHTML = safeSuggestions.map(suggestion => 
+            `<div class="suggestion-chip" onclick="askAI('${suggestion}')">${suggestion}</div>`
+        ).join('');
+    }
+}
+
+// Initialize professional chat
+function initializeProfessionalChat() {
+    const messagesContainer = document.getElementById('chatMessages');
+    
+    if (messagesContainer) {
+        messagesContainer.innerHTML = `
+            <div class="message assistant">
+                <div class="message-bubble">${getProfessionalWelcomeMessage()}</div>
+            </div>
+        `;
+    }
+    
+    updateProfessionalSuggestions();
+}
+
+// Message display functions
+function addMessage(role, content) {
+    const messagesContainer = document.getElementById('chatMessages');
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${role}`;
+    
+    const formattedContent = content.replace(/\n/g, '<br>');
+    
+    messageDiv.innerHTML = `
+        <div class="message-bubble">${formattedContent}</div>
+    `;
+    
+    messagesContainer.appendChild(messageDiv);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
+
+function showTyping() {
+    const messagesContainer = document.getElementById('chatMessages');
+    const typingDiv = document.createElement('div');
+    typingDiv.className = 'message assistant';
+    typingDiv.id = 'typingIndicator';
+    typingDiv.innerHTML = `
+        <div class="typing-indicator">
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+        </div>
+    `;
+    messagesContainer.appendChild(typingDiv);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
+
+function hideTyping() {
+    const typingIndicator = document.getElementById('typingIndicator');
+    if (typingIndicator) {
+        typingIndicator.remove();
+    }
+}
+
+// Input management
+function updateCharCount(length) {
+    const charCount = document.getElementById('charCount');
+    if (charCount) {
+        charCount.textContent = length;
+    }
+}
+
+function resizeTextarea(textarea) {
+    textarea.style.height = 'auto';
+    textarea.style.height = Math.min(textarea.scrollHeight, 100) + 'px';
+}
+
+// Event listeners setup
+function setupEventListeners() {
+    const chatInput = document.getElementById('chatInput');
+    if (chatInput) {
+        chatInput.addEventListener('input', function() {
+            updateCharCount(this.value.length);
+            resizeTextarea(this);
+        });
+
+        chatInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+    }
+}
+
+// Initialize everything when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    initializeProfessionalChat();
+    setupEventListeners();
+    
+    // Auto-hide loading after 5 seconds
+    setTimeout(hideLoading, 5000);
+});
+
+
+// Make functions globally available
+window.toggleChat = toggleChat;
+window.askAI = askAI;
+window.sendMessage = sendMessage;
+window.refreshDashboard = refreshDashboard;
+window.toggleFullscreen = toggleFullscreen;
+
+console.log('Enhanced Power BI Dashboard with AI Assistant initialized');
+</script>
+{% endblock %}

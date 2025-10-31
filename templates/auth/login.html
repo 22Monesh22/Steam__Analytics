@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | Steam Analytics Platform</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Try different paths -->
+<link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+<!-- OR -->
+<link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+<!-- OR -->
+<link rel="icon" type="image/x-icon" href="./favicon.ico">
+    <style>
+    :root {
+        --primary: #667eea;
+        --primary-dark: #5a6fd8;
+        --secondary: #764ba2;
+        --dark: #1a202c;
+        --light: #f8fafc;
+        --gray: #718096;
+        --success: #48bb78;
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+   body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    line-height: 1.6;
+    position: relative;
+}
+
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('https://miro.medium.com/v2/resize:fit:1200/0*zjoBPbuMkthgZcDv.gif') no-repeat center center;
+    background-size: cover;
+    z-index: -1;
+}
+
+body::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    
+    z-index: -1;
+}
+
+    .auth-container {
+        display: grid;
+        grid-template-columns: 1fr 400px;
+        max-width: 1050px;
+        width: 100%;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
+        border-radius: 24px;
+        overflow: hidden;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        min-height: 700px;
+
+    }
+
+    .hero-section {
+        background: linear-gradient(135deg, rgba(207, 212, 233, 0.178) 0%, rgba(84, 97, 214, 0.507) 100%);
+        padding: 60px;
+        color: rgb(0, 0, 0);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+        
+    }
+
+    .hero-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><polygon fill="rgba(255,255,255,0.05)" points="0,1000 1000,0 1000,1000"/></svg>');
+        background-size: cover;
+    }
+
+    .logo {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 40px;
+        font-size: 24px;
+        font-weight: 700;
+    }
+
+    .logo-icon {
+        width: 40px;
+        height: 40px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        backdrop-filter: blur(10px);
+    }
+
+    .hero-title {
+        font-size: 3.5rem;
+        font-weight: 800;
+        line-height: 1.1;
+        margin-bottom: 20px;
+        background: linear-gradient(135deg, #fff 0%, #e2e8f0 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .hero-subtitle {
+        font-size: 1.25rem;
+        opacity: 0.9;
+        margin-bottom: 40px;
+        font-weight: 400;
+    }
+
+    .features-grid {
+        display: grid;
+        gap: 20px;
+        margin-top: 40px;
+    }
+
+    .feature-item {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 15px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .feature-icon {
+        width: 40px;
+        height: 40px;
+        background: rgba(77, 21, 207, 0.2);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .feature-text h4 {
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 4px;
+        color: black;
+    }
+
+    .feature-text p {
+        font-size: 0.875rem;
+        opacity: 0.8;
+    }
+    
+
+    .login-section {
+        padding: 60px 40px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .login-header {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+
+    .login-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--dark);
+        margin-bottom: 8px;
+    }
+
+    .login-subtitle {
+        color: var(--gray);
+        font-size: 1rem;
+    }
+
+    .form-group {
+        margin-bottom: 24px;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: var(--dark);
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 16px;
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background: #fff;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .form-control::placeholder {
+        color: #a0aec0;
+    }
+
+    .btn-primary {
+        width: 100%;
+        padding: 16px;
+        background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+        border: none;
+        border-radius: 12px;
+        color: white;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-bottom: 20px;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+    }
+
+    .btn-primary:active {
+        transform: translateY(0);
+    }
+
+    .divider {
+        text-align: center;
+        margin: 30px 0;
+        position: relative;
+        color: var(--gray);
+        font-size: 0.875rem;
+    }
+
+    .divider::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: #e2e8f0;
+    }
+
+    .divider span {
+        background: white;
+        padding: 0 15px;
+        position: relative;
+    }
+
+    .social-login {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-bottom: 30px;
+    }
+
+    .btn-social {
+        padding: 12px;
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        background: white;
+        color: var(--dark);
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .btn-social:hover {
+        border-color: var(--primary);
+        transform: translateY(-1px);
+    }
+
+    .signup-link {
+        text-align: center;
+        color: var(--gray);
+        font-size: 0.875rem;
+    }
+
+    .signup-link a {
+        color: var(--primary);
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .signup-link a:hover {
+        text-decoration: underline;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+        margin-top: 40px;
+        padding-top: 30px;
+        border-top: 1px solid #e2e8f0;
+    }
+
+    .stat-item {
+        text-align: center;
+    }
+
+    .stat-number {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--primary);
+        display: block;
+    }
+
+    .stat-label {
+        font-size: 0.75rem;
+        color: var(--gray);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    @media (max-width: 968px) {
+        .auth-container {
+            grid-template-columns: 1fr;
+            max-width: 500px;
+        }
+        
+        .hero-section {
+            display: none;
+        }
+    }
+
+    .floating {
+        animation: floating 3s ease-in-out infinite;
+    }
+
+    @keyframes floating {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+    }
+
+    .alert {
+        padding: 12px 16px;
+        border-radius: 12px;
+        margin-bottom: 20px;
+        font-size: 0.875rem;
+        border: 1px solid transparent;
+    }
+
+    .alert-success {
+        background: #f0fff4;
+        border-color: #9ae6b4;
+        color: #276749;
+    }
+
+    .alert-error {
+        background: #fed7d7;
+        border-color: #feb2b2;
+        color: #c53030;
+    }
+</style>
+</head>
+<body>
+    <div class="auth-container">
+        <!-- Hero Section -->
+        <div class="hero-section">
+     <div class="logo">
+    <div class="logo-icon">
+        <i class="fas fa-chart-network"></i>
+    </div>
+    <span style="background: linear-gradient(135deg, #db25eb, #15b5ca); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font: 12px;">Steam Analytics</span>
+</div>
+<h1 class="hero-title" style="background: linear-gradient(135deg, #4f46e5, #06b6d4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+    AI-Powered Game Intelligence Platform
+</h1>
+            
+            <p class="hero-subtitle">
+                Transform 41 million+ Steam reviews into actionable business insights with our advanced analytics platform.
+            </p>
+
+            <div class="features-grid">
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="feature-text">
+                        <h4 style="color: balck;">AI-Powered Insights</h4>
+                        <p>Advanced machine learning algorithms</p>
+                    </div>
+                </div>
+                
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-database"></i>
+                    </div>
+                    <div class="feature-text">
+                        <h4>Massive Data Foundation</h4>
+                        <p>41M+ reviews, 10K+ games analyzed</p>
+                    </div>
+                </div>
+                
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="feature-text">
+                        <h4>Real-time Analytics</h4>
+                        <p>Live market trends and user behavior</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Login Section -->
+        <div class="login-section">
+            <div class="login-header">
+                <h2 class="login-title">Welcome Back</h2>
+                <p class="login-subtitle">Sign in to your Steam Analytics account</p>
+            </div>
+
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">
+                            <i class="fas fa-{% if category == 'error' %}exclamation-circle{% else %}info-circle{% endif %} me-2"></i>
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <form method="POST" action="{{ url_for('auth.login') }}" id="loginForm">
+                <input type="hidden" name="next" value="{{ request.args.get('next', '') }}">
+                
+                <div class="form-group">
+                    <label for="username" class="form-label">Username or Email</label>
+                    <input type="text" class="form-control" id="username" name="username" 
+                           placeholder="Enter your username or email" required autofocus>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" class="form-control" id="password" name="password" 
+                           placeholder="Enter your password" required>
+                </div>
+
+                <div class="form-group" style="display: flex; justify-content: space-between; align-items: center; font-size: 0.875rem;">
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                        <input type="checkbox" style="accent-color: var(--primary);">
+                        Remember me
+                    </label>
+                    <a href="#" style="color: var(--primary); text-decoration: none;">Forgot password?</a>
+                </div>
+                
+                <button type="submit" class="btn-primary">
+                    <i class="fas fa-sign-in-alt me-2"></i>
+                    Sign In to Dashboard
+                </button>
+            </form>
+
+            <div class="divider">
+                <span>or continue with</span>
+            </div>
+
+            <div class="social-login">
+                <button class="btn-social">
+                    <i class="fab fa-google"></i>
+                    Google
+                </button>
+                <button class="btn-social">
+                    <i class="fab fa-microsoft"></i>
+                    Microsoft
+                </button>
+            </div>
+
+            <div class="signup-link">
+                Don't have an account? <a href="{{ url_for('auth.register') }}">Sign up now</a>
+            </div>
+
+            <!-- Platform Stats -->
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <span class="stat-number">41M+</span>
+                    <span class="stat-label">Reviews</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">10K+</span>
+                    <span class="stat-label">Games</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">2.5M+</span>
+                    <span class="stat-label">Users</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Add loading state to form submission
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            const button = this.querySelector('button[type="submit"]');
+            button.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Signing In...';
+            button.disabled = true;
+        });
+
+        // Add focus effects
+        const inputs = document.querySelectorAll('.form-control');
+        inputs.forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentElement.classList.add('focused');
+            });
+            
+            input.addEventListener('blur', function() {
+                this.parentElement.classList.remove('focused');
+            });
+        });
+    </script>
+</body>
+</html>

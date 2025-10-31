@@ -1,0 +1,1311 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Power BI Dashboards - Steam Analytics{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --secondary-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        --success-gradient: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        --premium-gradient: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+    }
+    
+    .gradient-bg {
+        background: var(--primary-gradient);
+    }
+    
+    .dashboard-card {
+        transition: all 0.3s ease;
+        background: white;
+        border-radius: 16px;
+        overflow: hidden;
+        position: relative;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+        border: 1px solid #e2e8f0;
+    }
+    
+    .dashboard-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: var(--primary-gradient);
+    }
+    
+    .dashboard-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+    
+    .pulse-dot {
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+    }
+    
+    /* Professional Header Styles */
+    .professional-header {
+        background: white;
+        border-radius: 16px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        border: 1px solid #e2e8f0;
+    }
+    
+    .stats-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+        border: 1px solid #e2e8f0;
+    }
+    
+    .stats-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+    
+    .info-section {
+        background: white;
+        border-radius: 16px;
+        padding: 2rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        border: 1px solid #e2e8f0;
+    }
+    
+    .dashboard-preview {
+        background: #f8fafc;
+        border-radius: 12px;
+        padding: 1.5rem;
+        height: 180px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #64748b;
+        font-weight: 600;
+        border: 2px dashed #cbd5e0;
+        margin-bottom: 1rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8 max-w-7xl">
+    <!-- Professional Header -->
+    <div class="professional-header">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+            <div class="mb-4 md:mb-0">
+                <h1 class="text-3xl md:text-4xl font-bold text-gray-900">Power BI Dashboards</h1>
+                <p class="text-gray-600 mt-2 text-lg">Interactive analytics dashboards powered by Microsoft Power BI</p>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div class="flex items-center text-sm text-gray-600">
+                    <svg class="w-4 h-4 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                    <span>Last updated: Just now</span>
+                </div>
+               
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="stats-card">
+            <div class="flex items-center">
+                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
+                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="text-2xl font-bold text-gray-900">1.2K</h3>
+                    <p class="text-gray-600 text-sm">Monthly Views</p>
+                </div>
+            </div>
+        </div>
+        <div class="stats-card">
+            <div class="flex items-center">
+                <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mr-4">
+                    <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="text-2xl font-bold text-gray-900">89%</h3>
+                    <p class="text-gray-600 text-sm">User Engagement</p>
+                </div>
+            </div>
+        </div>
+        <div class="stats-card">
+            <div class="flex items-center">
+                <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mr-4">
+                    <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="text-2xl font-bold text-gray-900">24/7</h3>
+                    <p class="text-gray-600 text-sm">Data Refresh</p>
+                </div>
+            </div>
+        </div>
+        <div class="stats-card">
+            <div class="flex items-center">
+                <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mr-4">
+                    <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="text-2xl font-bold text-gray-900">15min</h3>
+                    <p class="text-gray-600 text-sm">Update Frequency</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+   <!-- Dashboard Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+    <!-- User Analytics Dashboard -->
+    <div class="dashboard-card p-6">
+        <div class="flex items-center mb-4">
+            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                <img src="https://cdn.jsdelivr.net/gh/twitter/twemoji/assets/svg/1f464.svg" class="w-6 h-6" alt="User Analytics">
+            </div>
+            <div class="ml-4">
+                <h3 class="text-lg font-semibold text-gray-900">User Analytics</h3>
+                <p class="text-sm text-gray-600">User behavior & engagement</p>
+            </div>
+        </div>
+        <p class="text-gray-700 mb-4">Comprehensive analysis of user demographics, play patterns, and engagement metrics across the Steam platform.</p>
+        <div class="dashboard-preview">
+            <div class="text-center">
+                <img src="https://cdn.jsdelivr.net/npm/heroicons@1.0.1/outline/chart-bar.svg" class="w-12 h-12 text-gray-400 mb-2 mx-auto" alt="Chart">
+                <p class="text-sm">User Analytics Dashboard Preview</p>
+            </div>
+        </div>
+        <div class="flex justify-between items-center">
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                <span class="w-2 h-2 bg-green-500 rounded-full mr-1 pulse-dot"></span>
+                Live Data
+            </span>
+            <a href="{{ url_for('powerbi.user_analytics') }}" 
+               class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition duration-200 text-white text-sm font-medium flex items-center">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                </svg>
+                View Dashboard
+            </a>
+        </div>
+    </div>
+
+    <!-- Game Analytics Dashboard -->
+    <div class="dashboard-card p-6">
+        <div class="flex items-center mb-4">
+            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                <img src="https://cdn.jsdelivr.net/gh/twitter/twemoji/assets/svg/1f3ae.svg" class="w-6 h-6" alt="Game Analytics">
+            </div>
+            <div class="ml-4">
+                <h3 class="text-lg font-semibold text-gray-900">Game Analytics</h3>
+                <p class="text-sm text-gray-600">Game performance & trends</p>
+            </div>
+        </div>
+        <p class="text-gray-700 mb-4">Detailed insights into game performance, sales trends, rating distributions, and market positioning analysis.</p>
+        <div class="dashboard-preview">
+            <div class="text-center">
+                <img src="https://cdn.jsdelivr.net/npm/heroicons@1.0.1/outline/chart-pie.svg" class="w-12 h-12 text-gray-400 mb-2 mx-auto" alt="Pie Chart">
+                <p class="text-sm">Game Analytics Dashboard Preview</p>
+            </div>
+        </div>
+        <div class="flex justify-between items-center">
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                <span class="w-2 h-2 bg-green-500 rounded-full mr-1 pulse-dot"></span>
+                Live Data
+            </span>
+            <a href="{{ url_for('powerbi.game_analytics') }}" 
+               class="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg transition duration-200 text-white text-sm font-medium flex items-center">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                </svg>
+                View Dashboard
+            </a>
+        </div>
+    </div>
+
+    <!-- Recommendation Engine Dashboard -->
+    <div class="dashboard-card p-6">
+        <div class="flex items-center mb-4">
+            <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                <img src="https://cdn.jsdelivr.net/gh/twitter/twemoji/assets/svg/1f9e0.svg" class="w-6 h-6" alt="Recommendation Engine">
+            </div>
+            <div class="ml-4">
+                <h3 class="text-lg font-semibold text-gray-900">Recommendation Engine</h3>
+                <p class="text-sm text-gray-600">AI-powered insights</p>
+            </div>
+        </div>
+        <p class="text-gray-700 mb-4">AI-powered recommendation performance, accuracy metrics, and user engagement with personalized suggestions.</p>
+        <div class="dashboard-preview">
+            <div class="text-center">
+                <img src="https://cdn.jsdelivr.net/npm/heroicons@1.0.1/outline/light-bulb.svg" class="w-12 h-12 text-gray-400 mb-2 mx-auto" alt="Light Bulb">
+                <p class="text-sm">Recommendation Engine Dashboard Preview</p>
+            </div>
+        </div>
+        <div class="flex justify-between items-center">
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                <span class="w-2 h-2 bg-green-500 rounded-full mr-1 pulse-dot"></span>
+                Live Data
+            </span>
+            <a href="{{ url_for('powerbi.recommendation_engine') }}" 
+               class="px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg transition duration-200 text-white text-sm font-medium flex items-center">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                </svg>
+                View Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+
+    <!-- Dashboard Information Section -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        <!-- Dashboard Objectives -->
+        <div class="info-section">
+            <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center">
+                <svg class="w-5 h-5 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                Dashboard Objectives
+            </h3>
+            <div class="space-y-4">
+                <div class="flex items-start">
+                    <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-3 flex-shrink-0">
+                        <span class="text-blue-600 font-bold">1</span>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-gray-900">User Behavior Analysis</h4>
+                        <p class="text-sm text-gray-600">Track user engagement, play patterns, and demographic insights across Steam platform.</p>
+                    </div>
+                </div>
+                <div class="flex items-start">
+                    <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center mr-3 flex-shrink-0">
+                        <span class="text-green-600 font-bold">2</span>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-gray-900">Game Performance Metrics</h4>
+                        <p class="text-sm text-gray-600">Monitor game sales, ratings, reviews, and market trends in real-time.</p>
+                    </div>
+                </div>
+                <div class="flex items-start">
+                    <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center mr-3 flex-shrink-0">
+                        <span class="text-purple-600 font-bold">3</span>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-gray-900">AI Recommendation Insights</h4>
+                        <p class="text-sm text-gray-600">Analyze recommendation engine performance and user interaction patterns.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Sources -->
+        <div class="info-section">
+            <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center">
+                <svg class="w-5 h-5 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"></path>
+                </svg>
+                Data Sources
+            </h3>
+            <div class="space-y-4">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-900">Steam API Integration</p>
+                        <p class="text-xs text-gray-600">Real-time user and game data</p>
+                    </div>
+                </div>
+                <div class="flex items-center">
+                    <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center mr-3">
+                        <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-900">Internal Analytics Database</p>
+                        <p class="text-xs text-gray-600">Historical performance data</p>
+                    </div>
+                </div>
+                <div class="flex items-center">
+                    <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center mr-3">
+                        <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-900">ML Recommendation Engine</p>
+                        <p class="text-xs text-gray-600">AI-powered insights</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Support Information -->
+    <div class="bg-blue-50 rounded-2xl p-6 border border-blue-200">
+        <div class="flex items-start">
+            <div class="flex-shrink-0">
+                <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+            </div>
+            <div class="ml-3">
+                <h3 class="text-lg font-medium text-blue-900">Need Help with Dashboards?</h3>
+                <p class="text-blue-700 mt-1">
+                    These Power BI dashboards provide interactive analytics. Use filters, drill-downs, and cross-highlighting to explore your data.
+                    Contact the analytics team for custom dashboard requests or training.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Initialize chatbot when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        initializePremiumChatbot();
+    });
+
+    // ============================
+    // PREMIUM EMOTIONAL AI CHATBOT
+    // ============================
+
+    let currentSessionId = '';
+
+    function initializePremiumChatbot() {
+        console.log('🚀 Initializing Premium Chatbot for Power BI...');
+        
+        // Remove any existing chatbot first
+        const existingChatbot = document.getElementById('premiumChatbot');
+        if (existingChatbot) {
+            existingChatbot.remove();
+        }
+
+        const premiumChatbotHTML = `
+        <!-- Premium Chatbot Widget -->
+        <div id="premiumChatbot" class="premium-chatbot-wrapper">
+            <!-- Premium Toggle Button -->
+            <div class="premium-toggle" id="premiumToggle">
+                <div class="premium-toggle-icon">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="currentColor"/>
+                    </svg>
+                </div>
+                <div class="premium-badge">AI</div>
+                <div class="unread-indicator" id="premiumUnread">0</div>
+            </div>
+
+            <!-- Premium Chat Window -->
+            <div class="premium-chat-window" id="premiumChatWindow">
+                <!-- Premium Header -->
+                <div class="premium-header">
+                    <div class="premium-header-left">
+                        <div class="premium-avatar">
+                            <div class="premium-glow"></div>
+                            <span>📊</span>
+                        </div>
+                        <div class="premium-info">
+                            <h3>Power BI Assistant</h3>
+                            <span class="premium-status">
+                                <span class="status-dot"></span>
+                                Dashboard Expert
+                            </span>
+                        </div>
+                    </div>
+                    <div class="premium-actions">
+                        <button class="premium-btn" id="premiumMinimize" title="Minimize">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path d="M18 15L12 9L6 15"/>
+                            </svg>
+                        </button>
+                        <button class="premium-btn" id="premiumClose" title="Close">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Premium Messages Container -->
+                <div class="premium-messages" id="premiumMessages">
+                    <!-- Messages will be loaded here -->
+                </div>
+
+                <!-- Premium Suggestions -->
+                <div class="premium-suggestions" id="premiumSuggestions">
+                    <div class="suggestions-header">
+                        <span>💡 Power BI Questions</span>
+                    </div>
+                    <div class="premium-suggestions-grid" id="premiumSuggestionsGrid">
+                        <!-- Dynamic suggestions will appear here -->
+                    </div>
+                </div>
+
+                <!-- Premium Input Area -->
+                <div class="premium-input-area">
+                    <div class="premium-input-wrapper">
+                        <textarea 
+                            id="premiumChatInput" 
+                            placeholder="Ask me about Power BI dashboards, analytics, or data insights... 📈"
+                            rows="1"
+                            maxlength="1000"
+                        ></textarea>
+                        <button id="premiumSendBtn" class="premium-send-btn">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="premium-input-footer">
+                        <span class="char-counter"><span id="premiumCharCount">0</span>/1000</span>
+                        <span class="premium-hint">Power BI Expert • Data Analytics</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        `;
+        
+        document.body.insertAdjacentHTML('beforeend', premiumChatbotHTML);
+        initializePremiumChatbotFunctionality();
+        loadPowerBIWelcome();
+        
+        console.log('✅ Premium Chatbot for Power BI injected successfully');
+    }
+
+    function initializePremiumChatbotFunctionality() {
+        console.log('🔧 Initializing Power BI chatbot functionality...');
+        
+        const toggleBtn = document.getElementById('premiumToggle');
+        const chatWindow = document.getElementById('premiumChatWindow');
+        const closeBtn = document.getElementById('premiumClose');
+        const minimizeBtn = document.getElementById('premiumMinimize');
+        const sendBtn = document.getElementById('premiumSendBtn');
+        const chatInput = document.getElementById('premiumChatInput');
+        const charCount = document.getElementById('premiumCharCount');
+        const unreadIndicator = document.getElementById('premiumUnread');
+
+        if (!toggleBtn || !chatWindow) {
+            console.error('❌ Chatbot elements not found!');
+            return;
+        }
+
+        let isOpen = false;
+        let unreadCount = 0;
+        currentSessionId = generateSessionId();
+
+        // Auto-resize textarea
+        chatInput.addEventListener('input', function() {
+            charCount.textContent = this.value.length;
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 100) + 'px';
+        });
+
+        // Toggle chat window
+        toggleBtn.addEventListener('click', function() {
+            isOpen = !isOpen;
+            if (isOpen) {
+                chatWindow.classList.add('active');
+                chatInput.focus();
+                resetUnreadCount();
+            } else {
+                chatWindow.classList.remove('active');
+            }
+        });
+
+        // Close chat
+        closeBtn.addEventListener('click', function() {
+            isOpen = false;
+            chatWindow.classList.remove('active');
+        });
+
+        // Minimize chat
+        minimizeBtn.addEventListener('click', function() {
+            isOpen = false;
+            chatWindow.classList.remove('active');
+        });
+
+        // Send message on button click
+        sendBtn.addEventListener('click', sendPremiumMessage);
+        
+        // Send message on Enter (with Shift+Enter for new line)
+        chatInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendPremiumMessage();
+            }
+        });
+
+        // Initialize suggestion clicks
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('premium-suggestion-chip')) {
+                const question = e.target.textContent;
+                document.getElementById('premiumChatInput').value = question;
+                sendPremiumMessage();
+            }
+        });
+
+        function resetUnreadCount() {
+            unreadCount = 0;
+            unreadIndicator.style.display = 'none';
+        }
+
+        function incrementUnreadCount() {
+            if (!isOpen) {
+                unreadCount++;
+                unreadIndicator.textContent = unreadCount;
+                unreadIndicator.style.display = 'flex';
+            }
+        }
+
+        function generateSessionId() {
+            return 'powerbi_session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        }
+
+        window.sendPremiumMessage = sendPremiumMessage;
+        
+        console.log('✅ Power BI Chatbot functionality initialized');
+    }
+
+    async function loadPowerBIWelcome() {
+        try {
+            console.log('📥 Loading Power BI welcome message...');
+            const response = await fetch('/premium-chatbot/welcome');
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                displayPowerBIWelcome(data);
+            } else {
+                throw new Error('Invalid response format');
+            }
+        } catch (error) {
+            console.error('Failed to load Power BI welcome:', error);
+            // Fallback welcome message for Power BI
+            displayPowerBIWelcome({
+                response: `📊 **Welcome to Power BI Dashboard Assistant!**
+
+I'm your specialized AI assistant for **Power BI dashboards and analytics**. 
+
+🎯 **I can help you with:**
+• Understanding dashboard metrics and KPIs
+• Explaining user behavior analytics
+• Analyzing game performance trends
+• Interpreting recommendation engine insights
+• Data visualization best practices
+• Dashboard navigation and features
+
+💡 **Ask me anything about the Power BI dashboards, data insights, or analytics!**
+
+Which dashboard would you like to explore?`,
+                suggestions: [
+                    "Explain User Analytics dashboard",
+                    "What's in Game Analytics?",
+                    "How does Recommendation Engine work?",
+                    "Show dashboard usage statistics",
+                    "Explain key metrics",
+                    "Data refresh schedule"
+                ],
+                session_id: currentSessionId
+            });
+        }
+    }
+
+    function displayPowerBIWelcome(data) {
+        const container = document.getElementById('premiumMessages');
+        if (!container) {
+            console.error('❌ Premium messages container not found!');
+            return;
+        }
+        
+        container.innerHTML = '';
+
+        // Add welcome message
+        addPremiumMessage('assistant', data.response);
+
+        // Display Power BI specific suggestions
+        if (data.suggestions && data.suggestions.length > 0) {
+            displayPremiumSuggestions(data.suggestions);
+        } else {
+            // Default Power BI suggestions
+            displayPremiumSuggestions([
+                "Explain User Analytics dashboard",
+                "What's in Game Analytics?",
+                "How does Recommendation Engine work?",
+                "Show dashboard usage statistics"
+            ]);
+        }
+
+        // Update session ID if provided
+        if (data.session_id) {
+            currentSessionId = data.session_id;
+        }
+        
+        console.log('✅ Power BI welcome displayed');
+    }
+
+    function displayPremiumSuggestions(suggestions) {
+        const container = document.getElementById('premiumSuggestionsGrid');
+        if (!container) {
+            console.error('❌ Premium suggestions grid not found!');
+            return;
+        }
+        
+        container.innerHTML = suggestions.map(suggestion => `
+            <button class="premium-suggestion-chip" title="${suggestion}">${suggestion}</button>
+        `).join('');
+    }
+
+    async function sendPremiumMessage() {
+        const input = document.getElementById('premiumChatInput');
+        const message = input.value.trim();
+
+        if (!message) return;
+
+        // Add user message to UI
+        addPremiumMessage('user', message);
+        input.value = '';
+        document.getElementById('premiumCharCount').textContent = '0';
+        input.style.height = 'auto';
+
+        // Hide suggestions while processing
+        const suggestionsContainer = document.getElementById('premiumSuggestions');
+        if (suggestionsContainer) {
+            suggestionsContainer.style.display = 'none';
+        }
+
+        // Show typing indicator
+        showPremiumTyping();
+
+        try {
+            console.log('📤 Sending message to Power BI chatbot...');
+            const response = await fetch('/premium-chatbot/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({ 
+                    message: message,
+                    session_id: currentSessionId,
+                    context: 'powerbi_dashboards'
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            hidePremiumTyping();
+
+            if (data.success) {
+                // Add context indicator for Power BI
+                if (data.context_analysis) {
+                    const contextIndicator = document.createElement('div');
+                    contextIndicator.className = 'emotional-context analytical';
+                    contextIndicator.textContent = '📊 Power BI Analytics Response';
+                    document.getElementById('premiumMessages').appendChild(contextIndicator);
+                }
+
+                addPremiumMessage('assistant', data.response);
+                
+                // Update suggestions if provided
+                if (data.suggestions && data.suggestions.length > 0) {
+                    displayPremiumSuggestions(data.suggestions);
+                    document.getElementById('premiumSuggestions').style.display = 'block';
+                }
+
+                console.log('✅ AI response received successfully');
+
+            } else {
+                addPremiumMessage('assistant', "I apologize, but I encountered an error while accessing Power BI insights. Please try again in a moment.");
+            }
+
+        } catch (error) {
+            console.error('Power BI chat API error:', error);
+            hidePremiumTyping();
+            addPremiumMessage('assistant', "I'm having trouble connecting to the Power BI analytics service right now. Please check your connection and try again.");
+        }
+
+        // Re-enable send button and show suggestions
+        document.getElementById('premiumSendBtn').disabled = false;
+        document.getElementById('premiumSuggestions').style.display = 'block';
+    }
+
+    function addPremiumMessage(role, content) {
+        const container = document.getElementById('premiumMessages');
+        if (!container) {
+            console.error('❌ Cannot add message - container not found');
+            return;
+        }
+        
+        const message = document.createElement('div');
+        message.className = `premium-message ${role}`;
+
+        const timestamp = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        
+        message.innerHTML = `
+            <div class="premium-message-avatar">
+                ${role === 'user' ? '👤' : '📊'}
+            </div>
+            <div class="premium-message-content">
+                <div class="premium-message-bubble">${formatPremiumMessage(content)}</div>
+                <div class="premium-message-time">${timestamp}</div>
+            </div>
+        `;
+
+        container.appendChild(message);
+        container.scrollTop = container.scrollHeight;
+
+        // Increment unread count for assistant messages when chat is closed
+        const chatWindow = document.getElementById('premiumChatWindow');
+        if (role === 'assistant' && chatWindow && !chatWindow.classList.contains('active')) {
+            incrementUnreadCount();
+        }
+    }
+
+    function formatPremiumMessage(content) {
+        return content
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+            .replace(/\*(.*?)\*/g, '<em>$1</em>')
+            .replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>')
+            .replace(/`(.*?)`/g, '<code>$1</code>')
+            .replace(/\n/g, '<br>');
+    }
+
+    function showPremiumTyping() {
+        const container = document.getElementById('premiumMessages');
+        if (!container) return;
+        
+        const typing = document.createElement('div');
+        typing.className = 'premium-typing-indicator';
+        typing.id = 'premiumTypingIndicator';
+        
+        typing.innerHTML = `
+            <div class="premium-message-avatar">📊</div>
+            <div class="premium-typing-dots">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        `;
+        
+        container.appendChild(typing);
+        container.scrollTop = container.scrollHeight;
+        
+        // Disable send button while typing
+        document.getElementById('premiumSendBtn').disabled = true;
+    }
+
+    function hidePremiumTyping() {
+        const typing = document.getElementById('premiumTypingIndicator');
+        if (typing) {
+            typing.remove();
+        }
+    }
+
+    // Force show chatbot icon if not visible
+    function ensureChatbotVisibility() {
+        const chatbot = document.getElementById('premiumChatbot');
+        const toggleBtn = document.getElementById('premiumToggle');
+        
+        if (chatbot && toggleBtn) {
+            chatbot.style.display = 'block';
+            toggleBtn.style.display = 'flex';
+        } else {
+            setTimeout(initializePremiumChatbot, 1000);
+        }
+    }
+
+    // Check chatbot visibility periodically
+    setInterval(ensureChatbotVisibility, 3000);
+
+    console.log('✅ Power BI Emotional AI Chatbot Script Loaded');
+</script>
+
+<style>
+    /* Premium Chatbot Styles for Power BI - Optimized Size */
+    .premium-chatbot-wrapper {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 10000;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    .premium-toggle {
+        position: relative;
+        width: 60px;
+        height: 60px;
+        background: var(--premium-gradient);
+        border-radius: 50%;
+        cursor: pointer;
+        box-shadow: 0 8px 25px rgba(250, 112, 154, 0.4);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 3px solid white;
+        color: white;
+    }
+
+    .premium-toggle:hover {
+        transform: scale(1.1);
+        box-shadow: 0 12px 35px rgba(250, 112, 154, 0.6);
+    }
+
+    .premium-toggle-icon {
+        margin-bottom: 2px;
+    }
+
+    .premium-badge {
+        font-size: 9px;
+        font-weight: 700;
+        background: rgba(255, 255, 255, 0.2);
+        padding: 2px 5px;
+        border-radius: 8px;
+        letter-spacing: 0.5px;
+    }
+
+    .unread-indicator {
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        background: #ef4444;
+        color: white;
+        border-radius: 10px;
+        min-width: 18px;
+        height: 18px;
+        font-size: 10px;
+        font-weight: 600;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        border: 2px solid white;
+    }
+
+    .premium-chat-window {
+        position: absolute;
+        bottom: 75px;
+        right: 0;
+        width: 380px;
+        height: 520px;
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+        display: none;
+        flex-direction: column;
+        overflow: hidden;
+        border: 1px solid #e2e8f0;
+    }
+
+    .premium-chat-window.active {
+        display: flex;
+    }
+
+    .premium-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 16px 20px;
+        background: var(--premium-gradient);
+        color: white;
+    }
+
+    .premium-header-left {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .premium-avatar {
+        position: relative;
+        width: 40px;
+        height: 40px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+    }
+
+    .premium-glow {
+        position: absolute;
+        top: -2px;
+        left: -2px;
+        right: -2px;
+        bottom: -2px;
+        background: conic-gradient(from 0deg, #fa709a, #fee140, #fa709a);
+        border-radius: 50%;
+        animation: rotate 3s linear infinite;
+        z-index: -1;
+    }
+
+    @keyframes rotate {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+
+    .premium-info h3 {
+        margin: 0;
+        font-size: 15px;
+        font-weight: 700;
+    }
+
+    .premium-status {
+        font-size: 11px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        opacity: 0.9;
+    }
+
+    .status-dot {
+        width: 7px;
+        height: 7px;
+        background: #10b981;
+        border-radius: 50%;
+        animation: pulse 2s infinite;
+    }
+
+    .premium-actions {
+        display: flex;
+        gap: 8px;
+    }
+
+    .premium-btn {
+        background: rgba(255, 255, 255, 0.1);
+        border: none;
+        color: white;
+        cursor: pointer;
+        padding: 6px;
+        border-radius: 8px;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .premium-btn:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: scale(1.05);
+    }
+
+    .premium-messages {
+        flex: 1;
+        padding: 16px;
+        overflow-y: auto;
+        background: #f8fafc;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .premium-message {
+        display: flex;
+        gap: 10px;
+        animation: messageSlide 0.3s ease-out;
+    }
+
+    @keyframes messageSlide {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .premium-message.user {
+        flex-direction: row-reverse;
+    }
+
+    .premium-message-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        flex-shrink: 0;
+    }
+
+    .premium-message.user .premium-message-avatar {
+        background: var(--success-gradient);
+        color: white;
+    }
+
+    .premium-message.assistant .premium-message-avatar {
+        background: var(--premium-gradient);
+        color: white;
+    }
+
+    .premium-message-content {
+        max-width: 260px;
+    }
+
+    .premium-message.user .premium-message-content {
+        margin-left: auto;
+    }
+
+    .premium-message-bubble {
+        padding: 12px 16px;
+        border-radius: 16px;
+        font-size: 13px;
+        line-height: 1.4;
+        word-wrap: break-word;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .premium-message.user .premium-message-bubble {
+        background: var(--premium-gradient);
+        color: white;
+        border-bottom-right-radius: 6px;
+    }
+
+    .premium-message.assistant .premium-message-bubble {
+        background: white;
+        color: #1e293b;
+        border: 1px solid #e2e8f0;
+        border-bottom-left-radius: 6px;
+    }
+
+    .premium-message-time {
+        font-size: 10px;
+        color: #94a3b8;
+        margin-top: 4px;
+        text-align: right;
+    }
+
+    .premium-message.user .premium-message-time {
+        text-align: right;
+    }
+
+    .premium-message.assistant .premium-message-time {
+        text-align: left;
+    }
+
+    .premium-typing-indicator {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+
+    .premium-typing-dots {
+        display: flex;
+        gap: 4px;
+        background: white;
+        padding: 12px 16px;
+        border-radius: 16px;
+        border: 1px solid #e2e8f0;
+    }
+
+    .premium-typing-dots span {
+        width: 7px;
+        height: 7px;
+        background: #94a3b8;
+        border-radius: 50%;
+        animation: typingBounce 1.4s ease-in-out infinite both;
+    }
+
+    .premium-typing-dots span:nth-child(1) { animation-delay: 0s; }
+    .premium-typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .premium-typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes typingBounce {
+        0%, 60%, 100% { transform: translateY(0); }
+        30% { transform: translateY(-3px); }
+    }
+
+    .premium-suggestions {
+        padding: 12px 16px;
+        border-top: 1px solid #e2e8f0;
+        background: white;
+        max-height: 100px;
+        overflow-y: auto;
+    }
+
+    .suggestions-header {
+        font-size: 11px;
+        font-weight: 600;
+        color: #64748b;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .premium-suggestions-grid {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+    }
+
+    .premium-suggestion-chip {
+        padding: 6px 10px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        font-size: 11px;
+        color: #475569;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-align: left;
+        line-height: 1.2;
+        max-width: 160px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .premium-suggestion-chip:hover {
+        background: #fa709a;
+        color: white;
+        transform: translateY(-1px);
+    }
+
+    .premium-input-area {
+        padding: 12px 16px;
+        border-top: 1px solid #e2e8f0;
+        background: white;
+    }
+
+    .premium-input-wrapper {
+        display: flex;
+        gap: 10px;
+        align-items: flex-end;
+    }
+
+    #premiumChatInput {
+        flex: 1;
+        padding: 12px 14px;
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        font-size: 13px;
+        resize: none;
+        outline: none;
+        transition: all 0.2s;
+        background: #f8fafc;
+        font-family: inherit;
+        line-height: 1.4;
+        max-height: 100px;
+        min-height: 40px;
+    }
+
+    #premiumChatInput:focus {
+        border-color: #fa709a;
+        background: white;
+        box-shadow: 0 0 0 3px rgba(250, 112, 154, 0.1);
+    }
+
+    .premium-send-btn {
+        width: 42px;
+        height: 42px;
+        background: var(--premium-gradient);
+        border: none;
+        border-radius: 12px;
+        color: white;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+        flex-shrink: 0;
+    }
+
+    .premium-send-btn:hover:not(:disabled) {
+        transform: scale(1.05);
+        box-shadow: 0 4px 12px rgba(250, 112, 154, 0.4);
+    }
+
+    .premium-send-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .premium-input-footer {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 6px;
+        font-size: 10px;
+        color: #94a3b8;
+    }
+
+    .char-counter {
+        font-weight: 600;
+    }
+
+    .premium-hint {
+        font-style: italic;
+    }
+
+    /* Emotional Response Indicators */
+    .emotional-context {
+        padding: 8px 12px;
+        margin: 8px 0;
+        border-radius: 10px;
+        font-size: 11px;
+        font-weight: 600;
+        text-align: center;
+        background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+        border: 1px solid #3b82f6;
+        color: #1e40af;
+    }
+
+    .emotional-context.analytical {
+        background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+        border-color: #3b82f6;
+        color: #1e40af;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .premium-chat-window {
+            width: 90vw;
+            right: 5vw;
+            height: 60vh;
+        }
+        
+        .premium-toggle {
+            width: 55px;
+            height: 55px;
+        }
+    }
+</style>
+{% endblock %}

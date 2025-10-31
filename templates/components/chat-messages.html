@@ -1,0 +1,162 @@
+ 
+<!-- Message Templates -->
+<template id="userMessageTemplate">
+    <div class="message user-message">
+        <div class="message-avatar">
+            <div class="user-avatar">👤</div>
+        </div>
+        <div class="message-content">
+            <div class="message-bubble"></div>
+            <div class="message-time"></div>
+        </div>
+    </div>
+</template>
+
+<template id="assistantMessageTemplate">
+    <div class="message assistant-message">
+        <div class="message-avatar">
+            <div class="ai-avatar">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M20 2H4C2.9 2 2 2.9 2 4V22L6 18H20C21.1 18 22 17.1 22 16V4C22 2.9 21.1 2 20 2Z" fill="currentColor"/>
+                </svg>
+            </div>
+        </div>
+        <div class="message-content">
+            <div class="message-bubble"></div>
+            <div class="dashboard-context"></div>
+            <div class="message-time"></div>
+            <div class="message-reactions">
+                <button class="reaction-btn" data-reaction="helpful">👍 Helpful</button>
+                <button class="reaction-btn" data-reaction="not-helpful">👎 Not Helpful</button>
+            </div>
+        </div>
+    </div>
+</template>
+
+<template id="systemMessageTemplate">
+    <div class="message system-message">
+        <div class="message-avatar">
+            <div class="system-avatar">⚙️</div>
+        </div>
+        <div class="message-content">
+            <div class="message-bubble"></div>
+            <div class="message-time"></div>
+        </div>
+    </div>
+</template>
+
+<template id="typingIndicatorTemplate">
+    <div class="typing-indicator">
+        <div class="typing-dots">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <span>AI is analyzing...</span>
+    </div>
+</template>
+
+<template id="suggestionChipTemplate">
+    <button class="suggestion-chip" role="listitem">
+        <!-- Content will be filled dynamically -->
+    </button>
+</template>
+
+<template id="dashboardTagTemplate">
+    <span class="dashboard-tag">
+        <!-- Icon and name will be filled dynamically -->
+    </span>
+</template>
+
+<template id="welcomeMessageTemplate">
+    <div class="welcome-message">
+        <div class="welcome-avatar">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M20 2H4C2.9 2 2 2.9 2 4V22L6 18H20C21.1 18 22 17.1 22 16V4C22 2.9 21.1 2 20 2Z" fill="#667eea"/>
+            </svg>
+        </div>
+        <div class="welcome-content">
+            <h4>Steam Analytics Assistant</h4>
+            <p>I can help you analyze data from your Power BI dashboards and provide insights about sales, users, and game performance.</p>
+        </div>
+    </div>
+</template>
+
+<template id="errorMessageTemplate">
+    <div class="message error-message">
+        <div class="message-avatar">
+            <div class="error-avatar">⚠️</div>
+        </div>
+        <div class="message-content">
+            <div class="message-bubble"></div>
+            <div class="message-time"></div>
+        </div>
+    </div>
+</template>
+
+<template id="historyItemTemplate">
+    <div class="history-item" data-conversation-id="">
+        <div class="history-preview"></div>
+        <div class="history-meta">
+            <span class="history-time"></span>
+            <span class="history-count"></span>
+        </div>
+    </div>
+</template>
+
+<!-- Notification Templates -->
+<template id="notificationTemplate">
+    <div class="chat-notification">
+        <div class="notification-content">
+            <div class="notification-icon"></div>
+            <div class="notification-message"></div>
+        </div>
+    </div>
+</template>
+
+<!-- Loading Skeleton Template -->
+<template id="skeletonTemplate">
+    <div class="message skeleton-message">
+        <div class="message-avatar">
+            <div class="skeleton-avatar"></div>
+        </div>
+        <div class="message-content">
+            <div class="skeleton-bubble">
+                <div class="skeleton-line short"></div>
+                <div class="skeleton-line medium"></div>
+                <div class="skeleton-line long"></div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<!-- Empty State Template -->
+<template id="emptyStateTemplate">
+    <div class="empty-state">
+        <div class="empty-icon">💬</div>
+        <h4>No messages yet</h4>
+        <p>Start a conversation with the AI assistant to get insights about your Steam analytics.</p>
+    </div>
+</template>
+
+<!-- Connection Status Template -->
+<template id="connectionStatusTemplate">
+    <div class="connection-status">
+        <span class="status-indicator"></span>
+        <span class="status-text"></span>
+    </div>
+</template>
+
+<!-- Voice Input Template -->
+<template id="voiceInputTemplate">
+    <div class="voice-input-indicator">
+        <div class="voice-waves">
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <p>Listening... Speak now</p>
+    </div>
+</template>

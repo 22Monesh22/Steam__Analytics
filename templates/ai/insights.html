@@ -1,0 +1,1331 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}AI Insights - Steam Analytics{% endblock %}
+
+{% block extra_css %}
+<style>
+    .ai-professional-container {
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #e2e8f0 100%);
+        min-height: 100vh;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    .professional-header {
+        background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+        border-bottom: 1px solid #e2e8f0;
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+    }
+
+    /* Updated grid with collapsible sidebar */
+    .professional-grid {
+        display: grid;
+        grid-template-columns: 1fr 300px;
+        gap: 2rem;
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 2rem;
+        height: calc(100vh - 200px);
+        transition: all 0.3s ease;
+    }
+
+    .professional-grid.sidebar-collapsed {
+        grid-template-columns: 1fr 60px;
+    }
+
+    @media (max-width: 1200px) {
+        .professional-grid {
+            grid-template-columns: 1fr;
+            height: auto;
+        }
+        
+        .professional-grid.sidebar-collapsed {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* Professional Cards */
+    .pro-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        transition: all 0.3s ease;
+    }
+
+    .pro-card:hover {
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        transform: translateY(-2px);
+    }
+
+    /* Chat Interface - Full width when sidebar collapsed */
+    .chat-interface-pro {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        position: relative;
+        transition: all 0.3s ease;
+    }
+
+    .professional-grid.sidebar-collapsed .chat-interface-pro {
+        margin-right: 0;
+    }
+
+    .chat-header-pro {
+        padding: 1.5rem 2rem;
+        border-bottom: 1px solid #e2e8f0;
+        background: #ffffff;
+        border-radius: 16px 16px 0 0;
+        flex-shrink: 0;
+    }
+
+    .chat-messages-pro {
+        flex: 1;
+        padding: 2rem;
+        overflow-y: auto;
+        background: #f8fafc;
+        min-height: 400px;
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    /* Add space between messages */
+    .message-user-pro + .message-ai-pro,
+    .message-ai-pro + .message-user-pro {
+        margin-top: 0.5rem;
+    }
+
+    .chat-input-pro {
+        padding: 1.5rem 2rem;
+        background: #ffffff;
+        border-top: 1px solid #e2e8f0;
+        border-radius: 0 0 16px 16px;
+        flex-shrink: 0;
+        position: sticky;
+        bottom: 0;
+        z-index: 10;
+    }
+
+    /* Messages */
+    .message-user-pro {
+        background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+        color: white;
+        border-radius: 18px 18px 4px 18px;
+        padding: 1rem 1.25rem;
+        margin-left: auto;
+        margin-bottom: 0;
+        max-width: 70%;
+        font-size: 0.95rem;
+        line-height: 1.5;
+        align-self: flex-end;
+    }
+
+    .message-ai-pro {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 18px 18px 18px 4px;
+        padding: 1.25rem;
+        margin-bottom: 0;
+        max-width: 75%;
+        font-size: 0.95rem;
+        line-height: 1.6;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        align-self: flex-start;
+    }
+
+    /* Input Area - Fixed at bottom */
+    .input-container-pro {
+        display: flex;
+        gap: 1rem;
+        align-items: flex-end;
+    }
+
+    .input-wrapper-pro {
+        flex: 1;
+        position: relative;
+    }
+
+    .chat-input-field-pro {
+        width: 100%;
+        background: #ffffff;
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 1rem 1.25rem;
+        font-size: 0.95rem;
+        outline: none;
+        transition: all 0.3s ease;
+        resize: none;
+        min-height: 56px;
+        max-height: 120px;
+        line-height: 1.5;
+        font-family: 'Inter', sans-serif;
+    }
+
+    .chat-input-field-pro:focus {
+        border-color: #4f46e5;
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    }
+
+    .send-button-pro {
+        background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+        border: none;
+        color: white;
+        padding: 1rem 1.5rem;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        min-width: 100px;
+        height: fit-content;
+    }
+
+    .send-button-pro:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+    }
+
+    /* Quick Actions */
+    .quick-actions-pro {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .action-btn-pro {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 1.25rem;
+        text-align: left;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 0.9rem;
+    }
+
+    .action-btn-pro:hover {
+        border-color: #4f46e5;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Professional Icons */
+    .pro-icon {
+        width: 2.5rem;
+        height: 2.5rem;
+        background: linear-gradient(135deg, #4f46e5, #7c3aed);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+    }
+
+    /* Sidebar - Collapsible */
+    .sidebar-pro {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        height: 100%;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+
+    .professional-grid.sidebar-collapsed .sidebar-pro {
+        width: 60px;
+    }
+
+    .sidebar-section-pro {
+        display: flex;
+        flex-direction: column;
+        height: auto;
+        transition: all 0.3s ease;
+        overflow: hidden;
+    }
+
+    .professional-grid.sidebar-collapsed .sidebar-section-pro {
+        height: auto;
+    }
+
+    .section-header-pro {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid #e2e8f0;
+        background: #ffffff;
+        font-size: 1rem;
+        font-weight: 600;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        transition: all 0.3s ease;
+    }
+
+    .professional-grid.sidebar-collapsed .section-header-pro {
+        padding: 1rem;
+        justify-content: center;
+    }
+
+    .professional-grid.sidebar-collapsed .section-header-pro h3 {
+        display: none;
+    }
+
+    .section-content-pro {
+        padding: 1.5rem;
+        background: #f8fafc;
+        overflow: visible;
+        transition: all 0.3s ease;
+    }
+
+    .professional-grid.sidebar-collapsed .section-content-pro {
+        display: none;
+    }
+
+    /* Analysis Cards */
+    .analysis-grid-pro {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .analysis-card-pro {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 1.25rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 0.9rem;
+    }
+
+    .analysis-card-pro:hover {
+        border-color: #4f46e5;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Insights List */
+    .insights-list-pro {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        max-height: 200px;
+        overflow-y: auto;
+    }
+
+    .insight-item-pro {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 0.85rem;
+    }
+
+    .insight-item-pro:hover {
+        border-color: #4f46e5;
+        transform: translateX(4px);
+    }
+
+    /* Text Gradients */
+    .text-gradient-violet {
+        background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .text-gradient-blue {
+        background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    /* Status & Controls */
+    .status-indicator-pro {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        background: #dcfce7;
+        color: #166534;
+        border: 1px solid #bbf7d0;
+    }
+
+    .style-select-pro {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 0.5rem 1rem;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .style-select-pro:focus {
+        border-color: #4f46e5;
+        outline: none;
+    }
+
+    /* Header */
+    .header-content {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 2rem;
+        text-align: center;
+    }
+
+    .header-icon-pro {
+        width: 4rem;
+        height: 4rem;
+        background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        box-shadow: 0 8px 20px rgba(79, 70, 229, 0.3);
+    }
+
+    /* Toggle Button */
+    .sidebar-toggle {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+        border: none;
+        border-radius: 10px;
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        z-index: 20;
+        color: white;
+    }
+
+    .sidebar-toggle:hover {
+        transform: scale(1.1);
+        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
+    }
+
+    .professional-grid.sidebar-collapsed .sidebar-toggle {
+        right: 0.5rem;
+    }
+
+    .sidebar-toggle svg {
+        transition: transform 0.3s ease;
+    }
+
+    .professional-grid.sidebar-collapsed .sidebar-toggle svg {
+        transform: rotate(180deg);
+    }
+
+    /* Mini Icons for Collapsed State */
+    .mini-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 0.5rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .mini-icon:hover {
+        transform: scale(1.1);
+    }
+
+    .mini-quick {
+        background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    }
+
+    .mini-recent {
+        background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%);
+    }
+
+    .mini-icons-container {
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        padding: 1rem 0.5rem;
+        gap: 1rem;
+    }
+
+    .professional-grid.sidebar-collapsed .mini-icons-container {
+        display: flex;
+    }
+
+    /* Loading Overlay */
+    #loadingState {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(4px);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+    }
+
+    .loading-content-pro {
+        background: #ffffff;
+        border-radius: 16px;
+        padding: 2rem;
+        text-align: center;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    }
+
+    .typing-dots-pro {
+        display: flex;
+        gap: 0.5rem;
+        justify-content: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .typing-dot-pro {
+        width: 8px;
+        height: 8px;
+        background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+        border-radius: 50%;
+        animation: typingBounce 1.4s infinite;
+    }
+
+    .typing-dot-pro:nth-child(2) { animation-delay: 0.16s; }
+    .typing-dot-pro:nth-child(3) { animation-delay: 0.32s; }
+
+    @keyframes typingBounce {
+        0%, 60%, 100% { transform: translateY(0); }
+        30% { transform: translateY(-10px); }
+    }
+
+    /* Utility Classes */
+    .flex-between {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .line-clamp-1 {
+        display: -webkit-box;
+        -webkit-line-clamp: 1;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    /* Badges */
+    .insight-badge-pro {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.25rem 0.75rem;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .badge-trend-pro {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+
+    .badge-user-pro {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .badge-genre-pro {
+        background: #f3e8ff;
+        color: #7c3aed;
+    }
+
+    /* Empty State */
+    .empty-state-pro {
+        text-align: center;
+        padding: 2rem 1rem;
+        color: #6b7280;
+        font-size: 0.9rem;
+    }
+
+    .empty-state-icon-pro {
+        width: 3rem;
+        height: 3rem;
+        background: #f3f4f6;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+    }
+
+    /* AI Response Styling */
+    .ai-response-pro {
+        line-height: 1.6;
+        font-size: 0.95rem;
+    }
+
+    .ai-response-pro h3 {
+        color: #1f2937;
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin: 1rem 0 0.5rem 0;
+    }
+
+    .ai-response-pro h4 {
+        color: #374151;
+        font-size: 1rem;
+        font-weight: 600;
+        margin: 0.8rem 0 0.4rem 0;
+    }
+
+    .ai-response-pro p {
+        margin: 0.5rem 0;
+        color: #4b5563;
+    }
+
+    .ai-response-pro ul, .ai-response-pro ol {
+        margin: 0.5rem 0;
+        padding-left: 1.5rem;
+    }
+
+    .ai-response-pro li {
+        margin: 0.3rem 0;
+        color: #4b5563;
+    }
+
+    .ai-response-pro strong {
+        color: #1f2937;
+        font-weight: 600;
+    }
+
+    .metric-highlight-pro {
+        background: linear-gradient(135deg, #4f46e5, #7c3aed);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-weight: 600;
+    }
+
+    .insight-card-pro {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin: 1rem 0;
+    }
+
+    .insight-header-pro {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .insight-header-pro svg {
+        color: #4f46e5;
+    }
+
+    /* Scrollbar Styling */
+    .chat-messages-pro::-webkit-scrollbar,
+    .insights-list-pro::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .chat-messages-pro::-webkit-scrollbar-track,
+    .insights-list-pro::-webkit-scrollbar-track {
+        background: #f1f5f9;
+        border-radius: 3px;
+    }
+
+    .chat-messages-pro::-webkit-scrollbar-thumb,
+    .insights-list-pro::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 3px;
+    }
+
+    .chat-messages-pro::-webkit-scrollbar-thumb:hover,
+    .insights-list-pro::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+    }
+
+    /* Message Spacing and Layout Improvements */
+    .messages-container {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        padding-bottom: 1rem;
+    }
+
+    /* Welcome message spacing */
+    .welcome-message {
+        margin-bottom: 2rem;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .professional-grid {
+            grid-template-columns: 1fr;
+            padding: 0 1rem;
+            gap: 1rem;
+        }
+        
+        .professional-grid.sidebar-collapsed {
+            grid-template-columns: 1fr;
+        }
+        
+        .quick-actions-pro {
+            grid-template-columns: 1fr;
+        }
+        
+        .message-user-pro,
+        .message-ai-pro {
+            max-width: 90%;
+            font-size: 0.9rem;
+        }
+        
+        .chat-messages-pro {
+            padding: 1rem;
+            min-height: 300px;
+        }
+        
+        .header-content {
+            padding: 0 1rem;
+        }
+        
+        .header-icon-pro {
+            width: 3rem;
+            height: 3rem;
+        }
+        
+        h1 {
+            font-size: 1.75rem !important;
+        }
+        
+        .chat-header-pro {
+            padding: 1rem 1.5rem;
+        }
+        
+        .chat-input-pro {
+            padding: 1rem 1.5rem;
+            position: sticky;
+            bottom: 0;
+            background: #ffffff;
+        }
+        
+        .insights-list-pro {
+            max-height: 150px;
+        }
+        
+        .sidebar-toggle {
+            display: none;
+        }
+    }
+
+    /* Focus States for Accessibility */
+    .action-btn-pro:focus,
+    .analysis-card-pro:focus,
+    .send-button-pro:focus {
+        outline: 2px solid #4f46e5;
+        outline-offset: 2px;
+    }
+
+    /* Smooth Animations */
+    .pro-card,
+    .message-user-pro,
+    .message-ai-pro {
+        animation: fadeInUp 0.3s ease-out;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Ensure input stays at bottom */
+    .chat-interface-pro {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .chat-messages-pro {
+        flex: 1;
+        overflow-y: auto;
+    }
+    
+    .chat-input-pro {
+        flex-shrink: 0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="ai-professional-container">
+    <!-- Professional Header -->
+    <div class="professional-header">
+        <div class="header-content">
+            <div class="header-icon-pro">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                </svg>
+            </div>
+            <h1 class="text-3xl font-bold text-gradient-violet mb-3">Steam Analytics AI</h1>
+            <p class="text-gray-600 text-lg">Professional AI-powered insights for gaming analytics</p>
+        </div>
+    </div>
+
+    <!-- Professional Grid Layout -->
+    <div class="professional-grid" id="mainGrid">
+        <!-- Main Chat Interface -->
+        <div class="pro-card chat-interface-pro">
+            <!-- Chat Header -->
+            <div class="chat-header-pro flex-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl flex items-center justify-center">
+                        <span class="text-white font-bold text-sm">AI</span>
+                    </div>
+                    <div>
+                        <h2 class="font-semibold text-gray-900">Analytics Assistant</h2>
+                        <p class="text-gray-600 text-sm">Ask me anything about Steam gaming data</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <select id="analysisStyle" class="style-select-pro">
+                        <option value="analytical">📊 Analytical</option>
+                        <option value="strategic">🎯 Strategic</option>
+                        <option value="technical">⚙️ Technical</option>
+                        <option value="concise">📝 Concise</option>
+                    </select>
+                    <div class="status-indicator-pro">
+                        <div class="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                        System Online
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat Messages -->
+            <div class="chat-messages-pro" id="chatMessages">
+                <!-- Welcome Message -->
+                <div class="message-ai-pro">
+                    <div class="flex items-start gap-3">
+                        <div class="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <span class="text-white font-bold text-xs">AI</span>
+                        </div>
+                        <div class="flex-1">
+                            <div class="font-semibold text-gray-900 mb-2">Analytics Assistant</div>
+                            <div class="text-gray-700 space-y-2">
+                                <p>Welcome! I can help you analyze gaming data, identify trends, and provide strategic insights.</p>
+                                <div class="bg-blue-50 p-3 rounded-lg">
+                                    <p class="text-blue-800 text-sm font-medium mb-1">Try asking:</p>
+                                    <ul class="text-blue-700 text-sm space-y-1">
+                                        <li>• "Analyze current market trends"</li>
+                                        <li>• "What are the most popular genres?"</li>
+                                        <li>• "Provide user engagement insights"</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat Input Section -->
+            <div class="chat-input-pro">
+                <!-- Quick Actions -->
+                <div class="quick-actions-pro" id="suggestionsGrid">
+                    <button class="action-btn-pro" data-question="Analyze current gaming market trends and identify growth opportunities">
+                        <div class="flex items-center">
+                            <div class="pro-icon">
+                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <div class="font-medium text-gray-900">Market Intelligence</div>
+                                <div class="text-gray-600 text-sm">Trend analysis & forecasts</div>
+                            </div>
+                        </div>
+                    </button>
+                    <button class="action-btn-pro" data-question="Provide comprehensive user behavior insights and engagement patterns">
+                        <div class="flex items-center">
+                            <div class="pro-icon">
+                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <div class="font-medium text-gray-900">User Analytics</div>
+                                <div class="text-gray-600 text-sm">Behavior patterns & retention</div>
+                            </div>
+                        </div>
+                    </button>
+                </div>
+
+                <!-- Input Area -->
+                <div class="input-container-pro">
+                    <div class="input-wrapper-pro">
+                        <textarea 
+                            id="chatInput"
+                            placeholder="Ask about trends, predictions, or request analysis..."
+                            class="chat-input-field-pro"
+                            rows="1"
+                        ></textarea>
+                    </div>
+                    <button id="sendButton" class="send-button-pro">
+                        <span class="flex items-center gap-2">
+                            <span>Analyze</span>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path>
+                            </svg>
+                        </span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="sidebar-pro">
+            <!-- Toggle Button -->
+            <button class="sidebar-toggle" id="sidebarToggle">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                </svg>
+            </button>
+
+            <!-- Mini Icons for Collapsed State -->
+            <div class="mini-icons-container">
+                <div class="mini-icon mini-quick" title="Quick Analysis" data-section="quick">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                    </svg>
+                </div>
+                <div class="mini-icon mini-recent" title="Recent Analysis" data-section="recent">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Quick Analysis Section -->
+            <div class="pro-card sidebar-section-pro">
+                <div class="section-header-pro">
+                    <h3 class="flex items-center gap-2">
+                        <span class="text-gradient-blue">⚡</span>
+                        Quick Analysis
+                    </h3>
+                </div>
+                <div class="section-content-pro">
+                    <div class="analysis-grid-pro">
+                        <button class="analysis-card-pro" data-type="trend">
+                            <div class="flex items-center gap-3">
+                                <div class="w-12 h-12 bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
+                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="font-medium text-gray-900">Market Trends</div>
+                                    <div class="text-gray-600 text-sm">Predictive market analysis</div>
+                                </div>
+                            </div>
+                        </button>
+                        <button class="analysis-card-pro" data-type="user_behavior">
+                            <div class="flex items-center gap-3">
+                                <div class="w-12 h-12 bg-gradient-to-r from-green-500 to-green-600 rounded-xl flex items-center justify-center">
+                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="font-medium text-gray-900">User Insights</div>
+                                    <div class="text-gray-600 text-sm">Behavior patterns analysis</div>
+                                </div>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Insights Section -->
+            <div class="pro-card sidebar-section-pro">
+                <div class="section-header-pro">
+                    <h3 class="flex items-center gap-2">
+                        <span class="text-gradient-violet">📚</span>
+                        Recent Analysis
+                    </h3>
+                </div>
+                <div class="section-content-pro">
+                    <div class="insights-list-pro" id="recentInsightsList">
+                        {% if user_insights %}
+                            {% for insight in user_insights %}
+                            <div class="insight-item-pro">
+                                <div class="flex-between mb-2">
+                                    <span class="font-medium text-gray-900 line-clamp-1 text-sm">{{ insight.title }}</span>
+                                    <span class="text-gray-500 text-xs">{{ insight.created_at.strftime('%H:%M') }}</span>
+                                </div>
+                                <p class="text-gray-600 text-sm line-clamp-2 mb-2">{{ insight.content[:100] }}...</p>
+                                <div class="flex-between">
+                                    <span class="insight-badge-pro 
+                                                {% if insight.insight_type == 'trend' %}badge-trend-pro
+                                                {% elif insight.insight_type == 'user_behavior' %}badge-user-pro
+                                                {% else %}badge-genre-pro{% endif %}">
+                                        {{ insight.insight_type|replace('_', ' ')|title }}
+                                    </span>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="empty-state-pro">
+                                <div class="empty-state-icon-pro">
+                                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                    </svg>
+                                </div>
+                                <p class="text-gray-500">No analyses generated yet</p>
+                                <p class="text-gray-400 text-sm mt-1">Start a conversation to generate insights</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Loading Overlay -->
+<div id="loadingState">
+    <div class="loading-content-pro">
+        <div class="typing-dots-pro">
+            <div class="typing-dot-pro"></div>
+            <div class="typing-dot-pro"></div>
+            <div class="typing-dot-pro"></div>
+        </div>
+        <h3 class="text-lg font-semibold text-gray-900 mb-2">Processing Analysis</h3>
+        <p class="text-gray-600 text-sm">Generating insights from your data...</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    class SteamAnalyticsAI {
+        constructor() {
+            this.isProcessing = false;
+            this.conversationHistory = [];
+            this.isSidebarCollapsed = false;
+            this.setupEventListeners();
+        }
+
+        setupEventListeners() {
+            // Chat functionality
+            document.getElementById('sendButton').addEventListener('click', () => this.sendMessage());
+            
+            document.getElementById('chatInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    this.sendMessage();
+                }
+            });
+
+            document.getElementById('chatInput').addEventListener('input', (e) => {
+                this.autoResize(e.target);
+            });
+
+            // Quick actions
+            document.querySelectorAll('.action-btn-pro').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const question = btn.getAttribute('data-question');
+                    this.quickQuestion(question);
+                });
+            });
+
+            // Analysis cards
+            document.querySelectorAll('.analysis-card-pro').forEach(card => {
+                card.addEventListener('click', () => {
+                    const type = card.getAttribute('data-type');
+                    this.generateQuickInsight(type);
+                });
+            });
+
+            // Sidebar toggle
+            document.getElementById('sidebarToggle').addEventListener('click', () => {
+                this.toggleSidebar();
+            });
+
+            // Mini icons for collapsed sidebar
+            document.querySelectorAll('.mini-icon').forEach(icon => {
+                icon.addEventListener('click', (e) => {
+                    const section = e.currentTarget.getAttribute('data-section');
+                    this.expandSection(section);
+                });
+            });
+        }
+
+        toggleSidebar() {
+            const grid = document.getElementById('mainGrid');
+            this.isSidebarCollapsed = !this.isSidebarCollapsed;
+            
+            if (this.isSidebarCollapsed) {
+                grid.classList.add('sidebar-collapsed');
+            } else {
+                grid.classList.remove('sidebar-collapsed');
+            }
+        }
+
+        expandSection(section) {
+            // First expand the sidebar
+            if (this.isSidebarCollapsed) {
+                this.toggleSidebar();
+            }
+            
+            // Scroll to the specific section
+            setTimeout(() => {
+                const sectionElement = document.querySelector(`[data-section="${section}"]`);
+                if (sectionElement) {
+                    sectionElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }, 300);
+        }
+
+        autoResize(textarea) {
+            textarea.style.height = 'auto';
+            textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
+        }
+
+        showLoading(show) {
+            const loading = document.getElementById('loadingState');
+            this.isProcessing = show;
+            loading.style.display = show ? 'flex' : 'none';
+        }
+
+        quickQuestion(question) {
+            if (this.isProcessing) return;
+            document.getElementById('chatInput').value = question;
+            this.sendMessage();
+        }
+
+        addMessage(role, content) {
+            const chatMessages = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            
+            if (role === 'user') {
+                messageDiv.className = 'message-user-pro';
+                messageDiv.innerHTML = `
+                    <div class="text-white">${content}</div>
+                `;
+            } else {
+                messageDiv.className = 'message-ai-pro';
+                const formattedContent = this.formatAIResponse(content);
+                messageDiv.innerHTML = `
+                    <div class="flex items-start gap-3">
+                        <div class="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <span class="text-white font-bold text-xs">AI</span>
+                        </div>
+                        <div class="flex-1 ai-response-pro">
+                            ${formattedContent}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        formatAIResponse(content) {
+            try {
+                const parsed = JSON.parse(content);
+                if (parsed.insight) {
+                    return this.formatStructuredInsight(parsed.insight);
+                }
+            } catch (e) {}
+
+            let formatted = content
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                .replace(/# (.*?)(?:\n|$)/g, '<h3>$1</h3>')
+                .replace(/## (.*?)(?:\n|$)/g, '<h4>$1</h4>')
+                .replace(/- (.*?)(?:\n|$)/g, '<li>$1</li>')
+                .replace(/(\d+)%/g, '<span class="metric-highlight-pro">$1%</span>')
+                .replace(/\n/g, '<br>');
+
+            formatted = formatted.replace(/(<li>.*?<\/li>)+/g, '<ul>$&</ul>');
+            return formatted;
+        }
+
+        formatStructuredInsight(insight) {
+            return `
+                <div class="insight-card-pro">
+                    <div class="insight-header-pro">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <h3 class="font-semibold text-gray-900">Analysis Complete</h3>
+                    </div>
+                    <div class="text-gray-700">
+                        ${this.formatAIResponse(insight)}
+                    </div>
+                </div>
+            `;
+        }
+
+        async sendMessage() {
+            if (this.isProcessing) return;
+            
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            const style = document.getElementById('analysisStyle').value;
+            
+            if (!message) return;
+            
+            this.addMessage('user', message);
+            input.value = '';
+            this.autoResize(input);
+            
+            document.getElementById('suggestionsGrid').style.display = 'none';
+            this.showLoading(true);
+            
+            try {
+                const endpoint = this.shouldUseInsightEndpoint(message) ? '/ai/chat-insight' : '/ai/chat';
+                const body = this.shouldUseInsightEndpoint(message) 
+                    ? { prompt: message }
+                    : { 
+                        message: message, 
+                        history: this.conversationHistory, 
+                        style: style
+                    };
+                
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify(body)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    if (this.shouldUseInsightEndpoint(message)) {
+                        this.addMessage('assistant', JSON.stringify({ insight: result.insight }));
+                        this.addToRecentInsights(result);
+                    } else {
+                        this.addMessage('assistant', result.response);
+                        this.conversationHistory.push(
+                            { role: 'user', content: message },
+                            { role: 'assistant', content: result.response }
+                        );
+                    }
+                } else {
+                    this.addMessage('assistant', '❌ Error: ' + (result.error || 'Unable to process request'));
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                this.addMessage('assistant', '🌐 Network error. Please check your connection.');
+            } finally {
+                this.showLoading(false);
+            }
+        }
+
+        shouldUseInsightEndpoint(message) {
+            const insightKeywords = ['analyze', 'report', 'insight', 'trend', 'analysis', 'summary', 'review'];
+            return insightKeywords.some(keyword => message.toLowerCase().includes(keyword));
+        }
+
+        async generateQuickInsight(type) {
+            if (this.isProcessing) return;
+            
+            this.showLoading(true);
+            
+            try {
+                const response = await fetch('/ai/generate-insight', { 
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({ 
+                        type: type,
+                        style: document.getElementById('analysisStyle').value
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    this.addMessage('assistant', JSON.stringify({ insight: result.insight }));
+                    this.addToRecentInsights(result);
+                    document.getElementById('suggestionsGrid').style.display = 'none';
+                } else {
+                    this.addMessage('assistant', '❌ Failed to generate insight');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                this.addMessage('assistant', '🌐 Network error');
+            } finally {
+                this.showLoading(false);
+            }
+        }
+
+        addToRecentInsights(insightData) {
+            const recentInsightsList = document.getElementById('recentInsightsList');
+            const emptyState = recentInsightsList.querySelector('.empty-state-pro');
+            
+            if (emptyState) {
+                emptyState.remove();
+            }
+            
+            const newInsight = this.createInsightItem(insightData);
+            recentInsightsList.insertAdjacentHTML('afterbegin', newInsight);
+        }
+
+        createInsightItem(insightData) {
+            const type = insightData.type || 'analysis';
+            const content = insightData.insight || insightData.content || 'No content';
+            const title = insightData.title || `${type.replace('_', ' ')} Analysis`;
+            
+            const typeClass = type === 'trend' ? 'badge-trend-pro' : 
+                            type === 'user_behavior' ? 'badge-user-pro' : 'badge-genre-pro';
+            
+            return `
+                <div class="insight-item-pro">
+                    <div class="flex-between mb-2">
+                        <span class="font-medium text-gray-900 line-clamp-1 text-sm">${title}</span>
+                        <span class="text-gray-500 text-xs">${new Date().toLocaleTimeString()}</span>
+                    </div>
+                    <p class="text-gray-600 text-sm line-clamp-2 mb-2">${content.substring(0, 100)}...</p>
+                    <div class="flex-between">
+                        <span class="insight-badge-pro ${typeClass}">
+                            ${type.replace('_', ' ')}
+                        </span>
+                    </div>
+                </div>
+            `;
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        window.aiApp = new SteamAnalyticsAI();
+    });
+</script>
+{% endblock %}

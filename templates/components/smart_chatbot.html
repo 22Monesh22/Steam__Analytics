@@ -1,0 +1,103 @@
+<!-- app/templates/components/smart_chatbot.html -->
+<div class="chatbot-container" id="smartChatbot">
+    <div class="chatbot-header">
+        <h4>🤖 Power BI Dashboard Assistant</h4>
+        <div class="dashboard-info" id="dashboardInfo">
+            <small id="currentDashboard">Analyzing: {{ dashboard_name or "Select a dashboard" }}</small>
+        </div>
+    </div>
+    
+    <div class="chatbot-messages" id="chatMessages">
+        <!-- Messages will appear here -->
+    </div>
+    
+    <div class="suggestions-container" id="suggestionsContainer">
+        <!-- Dynamic suggestions will appear here -->
+    </div>
+    
+    <div class="chatbot-input">
+        <input type="text" id="chatInput" placeholder="Ask about your dashboard data...">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+</div>
+
+<script>
+let currentSessionId = null;
+let currentDashboardUrl = '{{ dashboard_url }}';
+
+// Initialize chat session
+async function initializeChat() {
+    try {
+        const response = await fetch('/smart-chat/start-session', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({dashboard_url: currentDashboardUrl})
+        });
+        
+        const data = await response.json();
+        if (data.success) {
+            currentSessionId = data.session_id;
+            loadDashboardSuggestions();
+        }
+    } catch (error) {
+        console.error('Session initialization failed:', error);
+    }
+}
+
+// Send message to chatbot
+async function sendMessage() {
+    const input = document.getElementById('chatInput');
+    const message = input.value.trim();
+    
+    if (!message) return;
+    
+    // Add user message to chat
+    addMessage('user', message);
+    input.value = '';
+    
+    try {
+        const response = await fetch('/smart-chat/chat', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                message: message,
+                dashboard_url: currentDashboardUrl,
+                session_id: currentSessionId
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            addMessage('assistant', data.response);
+            showSuggestions(data.suggestions);
+        } else {
+            addMessage('assistant', 'Sorry, I encountered an error. Please try again.');
+        }
+    } catch (error) {
+        console.error('Chat error:', error);
+        addMessage('assistant', 'Connection error. Please check your internet connection.');
+    }
+}
+
+// Load dashboard-specific suggestions
+async function loadDashboardSuggestions() {
+    if (!currentDashboardUrl) return;
+    
+    try {
+        const response = await fetch(`/smart-chat/get-dashboard-info?dashboard_url=${encodeURIComponent(currentDashboardUrl)}`);
+        const data = await response.json();
+        
+        if (data.success) {
+            showSuggestions(data.common_questions);
+        }
+    } catch (error) {
+        console.error('Failed to load suggestions:', error);
+    }
+}
+
+// Initialize when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    initializeChat();
+});
+</script>

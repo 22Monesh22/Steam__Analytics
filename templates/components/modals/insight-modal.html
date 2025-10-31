@@ -1,0 +1,65 @@
+<div id="insightModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-2xl p-6 max-w-2xl w-full mx-4 max-h-90vh overflow-y-auto">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-xl font-semibold text-gray-900">AI Insight</h3>
+            <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 transition duration-200">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+        
+        <div class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Insight Title</label>
+                <input type="text" id="insightTitle" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter insight title">
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Insight Type</label>
+                <select id="insightType" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <option value="trend">Trend Analysis</option>
+                    <option value="user_behavior">User Behavior</option>
+                    <option value="genre">Genre Insights</option>
+                    <option value="recommendation">Recommendation</option>
+                </select>
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Insight Content</label>
+                <textarea id="insightContent" rows="6" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter insight content..."></textarea>
+            </div>
+            
+            <div class="flex items-center">
+                <input type="checkbox" id="isPublic" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                <label for="isPublic" class="ml-2 block text-sm text-gray-900">Make this insight public</label>
+            </div>
+        </div>
+        
+        <div class="flex justify-end space-x-3 mt-6">
+            <button onclick="closeModal()" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition duration-200">
+                Cancel
+            </button>
+            <button onclick="saveInsight()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-white transition duration-200">
+                Save Insight
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+function closeModal() {
+    document.getElementById('insightModal').classList.add('hidden');
+}
+
+function saveInsight() {
+    const title = document.getElementById('insightTitle').value;
+    const content = document.getElementById('insightContent').value;
+    const type = document.getElementById('insightType').value;
+    const isPublic = document.getElementById('isPublic').checked;
+    
+    // Save insight logic here
+    console.log('Saving insight:', { title, content, type, isPublic });
+    closeModal();
+}
+</script>

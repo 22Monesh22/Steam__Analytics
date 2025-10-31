@@ -1,0 +1,421 @@
+<!-- Chart Container Component -->
+<style>
+    .chart-widget {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+        transition: all 0.3s ease;
+    }
+    
+    .chart-widget:hover {
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+    }
+    
+    .chart-controls {
+        background: #f8fafc;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .chart-filter {
+        transition: all 0.3s ease;
+    }
+    
+    .chart-filter:hover {
+        transform: translateY(-1px);
+    }
+    
+    .export-btn {
+        transition: all 0.3s ease;
+    }
+    
+    .export-btn:hover {
+        transform: translateY(-1px);
+    }
+    
+    .chart-loading {
+        display: none;
+    }
+    
+    .chart-empty {
+        display: none;
+    }
+    
+    .hidden {
+        display: none;
+    }
+</style>
+
+<div class="chart-widget bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+    <!-- Chart Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
+        <div class="mb-4 sm:mb-0">
+            <h3 class="text-lg font-semibold text-gray-900">{{ chart_title }}</h3>
+            {% if chart_subtitle %}
+            <p class="text-sm text-gray-600 mt-1">{{ chart_subtitle }}</p>
+            {% endif %}
+        </div>
+        
+        <!-- Chart Controls -->
+        <div class="flex items-center space-x-3">
+            {% if chart_filters %}
+            <div class="flex items-center space-x-2">
+                {% for filter in chart_filters %}
+                <select class="chart-filter text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white">
+                    {% for option in filter.options %}
+                    <option value="{{ option.value }}" {% if option.selected %}selected{% endif %}>
+                        {{ option.label }}
+                    </option>
+                    {% endfor %}
+                </select>
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            <!-- Chart Actions -->
+            <div class="flex items-center space-x-2">
+                <button class="export-btn p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition duration-200"
+                        onclick="exportChart('{{ chart_id }}', 'png')"
+                        title="Download as PNG">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                    </svg>
+                </button>
+                
+                <button class="refresh-btn p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition duration-200"
+                        onclick="refreshChart('{{ chart_id }}')"
+                        title="Refresh Data">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                    </svg>
+                </button>
+                
+                <button class="fullscreen-btn p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition duration-200"
+                        onclick="toggleFullscreen('{{ chart_id }}')"
+                        title="Fullscreen">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 4h-4m4 0l-5-5"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart Loading State -->
+    <div id="{{ chart_id }}-loading" class="chart-loading hidden">
+        <div class="flex items-center justify-center h-64">
+            <div class="text-center">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
+                <p class="text-sm text-gray-600">Loading chart data...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart Canvas -->
+    <div class="chart-content relative">
+        <canvas id="{{ chart_id }}" 
+                data-chart-type="{{ chart_type }}"
+                data-chart-url="{{ chart_data_url }}"
+                height="300">
+        </canvas>
+        
+        <!-- No Data State -->
+        <div id="{{ chart_id }}-empty" class="chart-empty hidden">
+            <div class="flex items-center justify-center h-64">
+                <div class="text-center">
+                    <div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                        </svg>
+                    </div>
+                    <h4 class="text-sm font-medium text-gray-900 mb-1">No Data Available</h4>
+                    <p class="text-sm text-gray-600">There's no data to display for this chart.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart Footer -->
+    {% if chart_footer %}
+    <div class="mt-4 pt-4 border-t border-gray-200">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+            <div class="text-sm text-gray-600">
+                {{ chart_footer }}
+            </div>
+            {% if chart_legend %}
+            <div class="mt-2 sm:mt-0">
+                <div class="flex flex-wrap items-center space-x-4 text-xs">
+                    {% for item in chart_legend %}
+                    <div class="flex items-center">
+                        <div class="w-3 h-3 rounded-full mr-2" ></div>
+                        <span class="text-gray-600">{{ item.label }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Chart Configuration Script -->
+<script>
+// Initialize chart when component is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    initializeChart('{{ chart_id }}', '{{ chart_type }}', '{{ chart_data_url }}');
+});
+
+function initializeChart(chartId, chartType, dataUrl) {
+    const canvas = document.getElementById(chartId);
+    const loadingElement = document.getElementById(chartId + '-loading');
+    const emptyElement = document.getElementById(chartId + '-empty');
+    
+    if (!canvas) return;
+    
+    // Show loading state
+    loadingElement.classList.remove('hidden');
+    canvas.classList.add('hidden');
+    
+    // Load chart data
+    loadChartData(chartId, chartType, dataUrl)
+        .then(data => {
+            if (data && data.labels && data.labels.length > 0) {
+                createChartInstance(chartId, chartType, data);
+                loadingElement.classList.add('hidden');
+                canvas.classList.remove('hidden');
+                emptyElement.classList.add('hidden');
+            } else {
+                loadingElement.classList.add('hidden');
+                canvas.classList.add('hidden');
+                emptyElement.classList.remove('hidden');
+            }
+        })
+        .catch(error => {
+            console.error('Error loading chart data:', error);
+            loadingElement.classList.add('hidden');
+            canvas.classList.add('hidden');
+            emptyElement.classList.remove('hidden');
+        });
+}
+
+async function loadChartData(chartId, chartType, dataUrl) {
+    try {
+        if (dataUrl) {
+            const response = await fetch(dataUrl);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return await response.json();
+        } else {
+            // Return sample data if no URL provided
+            return getSampleChartData(chartType);
+        }
+    } catch (error) {
+        console.error('Error fetching chart data:', error);
+        return getSampleChartData(chartType);
+    }
+}
+
+function getSampleChartData(chartType) {
+    const baseData = {
+        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+        datasets: []
+    };
+    
+    switch (chartType) {
+        case 'bar':
+            baseData.datasets = [{
+                label: 'Sample Data',
+                data: [65, 59, 80, 81, 56, 55],
+                backgroundColor: 'rgba(59, 130, 246, 0.8)',
+                borderColor: 'rgba(59, 130, 246, 1)',
+                borderWidth: 1
+            }];
+            break;
+            
+        case 'line':
+            baseData.datasets = [{
+                label: 'Trend Line',
+                data: [65, 59, 80, 81, 56, 55],
+                borderColor: 'rgba(16, 185, 129, 1)',
+                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                borderWidth: 2,
+                tension: 0.4,
+                fill: true
+            }];
+            break;
+            
+        case 'doughnut':
+            baseData.labels = ['Category A', 'Category B', 'Category C'];
+            baseData.datasets = [{
+                data: [40, 35, 25],
+                backgroundColor: [
+                    'rgba(59, 130, 246, 0.8)',
+                    'rgba(16, 185, 129, 0.8)',
+                    'rgba(139, 92, 246, 0.8)'
+                ],
+                borderWidth: 1
+            }];
+            break;
+            
+        case 'pie':
+            baseData.labels = ['Red', 'Blue', 'Yellow'];
+            baseData.datasets = [{
+                data: [300, 50, 100],
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.8)',
+                    'rgba(54, 162, 235, 0.8)',
+                    'rgba(255, 205, 86, 0.8)'
+                ],
+                borderWidth: 1
+            }];
+            break;
+            
+        default:
+            baseData.datasets = [{
+                label: 'Data',
+                data: [65, 59, 80, 81, 56, 55],
+                backgroundColor: 'rgba(59, 130, 246, 0.8)'
+            }];
+    }
+    
+    return baseData;
+}
+
+function createChartInstance(chartId, chartType, data) {
+    const ctx = document.getElementById(chartId).getContext('2d');
+    
+    const config = {
+        type: chartType,
+        data: data,
+        options: getChartOptions(chartType)
+    };
+    
+    // Store chart instance for later reference
+    if (!window.chartInstances) {
+        window.chartInstances = {};
+    }
+    
+    // Destroy existing chart if it exists
+    if (window.chartInstances[chartId]) {
+        window.chartInstances[chartId].destroy();
+    }
+    
+    window.chartInstances[chartId] = new Chart(ctx, config);
+}
+
+function getChartOptions(chartType) {
+    const baseOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom',
+                labels: {
+                    usePointStyle: true,
+                    padding: 20
+                }
+            },
+            tooltip: {
+                mode: 'index',
+                intersect: false,
+                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                titleFont: { size: 12 },
+                bodyFont: { size: 11 },
+                padding: 10
+            }
+        },
+        interaction: {
+            mode: 'nearest',
+            axis: 'x',
+            intersect: false
+        }
+    };
+    
+    // Type-specific options
+    switch (chartType) {
+        case 'bar':
+            baseOptions.scales = {
+                x: {
+                    grid: {
+                        display: false
+                    }
+                },
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        borderDash: [2, 2]
+                    }
+                }
+            };
+            break;
+            
+        case 'line':
+            baseOptions.scales = {
+                x: {
+                    grid: {
+                        display: false
+                    }
+                },
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        borderDash: [2, 2]
+                    }
+                }
+            };
+            break;
+            
+        case 'doughnut':
+        case 'pie':
+            baseOptions.cutout = chartType === 'doughnut' ? '60%' : '0%';
+            baseOptions.plugins.legend.position = 'bottom';
+            break;
+    }
+    
+    return baseOptions;
+}
+
+// Chart Utility Functions
+function refreshChart(chartId) {
+    const canvas = document.getElementById(chartId);
+    const chartType = canvas.getAttribute('data-chart-type');
+    const dataUrl = canvas.getAttribute('data-chart-url');
+    
+    initializeChart(chartId, chartType, dataUrl);
+}
+
+function exportChart(chartId, format = 'png') {
+    const chart = window.chartInstances?.[chartId];
+    if (chart) {
+        const link = document.createElement('a');
+        const timestamp = new Date().toISOString().split('T')[0];
+        link.download = `chart-${chartId}-${timestamp}.${format}`;
+        link.href = chart.toBase64Image();
+        link.click();
+    }
+}
+
+function toggleFullscreen(chartId) {
+    const chartElement = document.getElementById(chartId).closest('.chart-widget');
+    if (!document.fullscreenElement) {
+        chartElement.requestFullscreen().catch(err => {
+            console.error(`Error attempting to enable fullscreen: ${err.message}`);
+        });
+    } else {
+        document.exitFullscreen();
+    }
+}
+
+// Handle filter changes
+document.addEventListener('change', function(e) {
+    if (e.target.classList.contains('chart-filter')) {
+        const chartWidget = e.target.closest('.chart-widget');
+        const chartId = chartWidget.querySelector('canvas').id;
+        refreshChart(chartId);
+    }
+});
+</script>

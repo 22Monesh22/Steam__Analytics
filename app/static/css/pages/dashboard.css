@@ -1,0 +1,122 @@
+/* Dashboard-specific styles */
+
+.dashboard-grid {
+    display: grid;
+    gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+    .dashboard-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 1024px) {
+    .dashboard-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* Stat card animations */
+.stat-card {
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s;
+}
+
+.stat-card:hover::before {
+    left: 100%;
+}
+
+/* Chart container responsive */
+.chart-responsive {
+    position: relative;
+    height: 0;
+    padding-bottom: 56.25%; /* 16:9 aspect ratio */
+}
+
+.chart-responsive canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+/* Loading states */
+.loading-skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+/* Dashboard widgets */
+.widget {
+    @apply bg-white rounded-2xl p-6 shadow-lg border border-gray-100;
+}
+
+.widget-header {
+    @apply flex justify-between items-center mb-4;
+}
+
+.widget-title {
+    @apply text-lg font-semibold text-gray-900;
+}
+
+.widget-actions {
+    @apply flex space-x-2;
+}
+
+/* KPI indicators */
+.kpi-positive {
+    @apply text-green-600 bg-green-100 px-2 py-1 rounded-full text-sm;
+}
+
+.kpi-negative {
+    @apply text-red-600 bg-red-100 px-2 py-1 rounded-full text-sm;
+}
+
+.kpi-neutral {
+    @apply text-gray-600 bg-gray-100 px-2 py-1 rounded-full text-sm;
+}
+
+/* Progress bars */
+.progress-bar {
+    @apply w-full bg-gray-200 rounded-full h-2;
+}
+
+.progress-fill {
+    @apply h-2 rounded-full transition-all duration-500;
+}
+
+.progress-blue {
+    @apply bg-blue-600;
+}
+
+.progress-green {
+    @apply bg-green-600;
+}
+
+.progress-red {
+    @apply bg-red-600;
+}

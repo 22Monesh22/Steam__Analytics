@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Steam Analytics Platform{% endblock %}</title>
+    
+    <!-- Tailwind CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Custom CSS -->
+    <link href="{{ url_for('static', filename='css/tailwind.css') }}" rel="stylesheet">
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Navigation -->
+    {% if current_user.is_authenticated %}
+        {% include 'components/header.html' %}
+        {% include 'components/sidebar.html' %}
+    {% endif %}
+
+    <!-- Main Content -->
+    <main class="{% if current_user.is_authenticated %}ml-64 pt-16{% endif %} transition-all duration-300">
+        <!-- Flash Messages -->
+        <div class="container mx-auto px-6 py-4">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }} mb-4 p-4 rounded-lg 
+                            {% if category == 'success' %}bg-green-100 text-green-800 border border-green-300
+                            {% elif category == 'error' %}bg-red-100 text-red-800 border border-red-300
+                            {% else %}bg-blue-100 text-blue-800 border border-blue-300{% endif %}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        </div>
+
+        <!-- Page Content -->
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Scripts -->
+    <script src="{{ url_for('static', filename='js/utils/helpers.js') }}"></script>
+    {% if current_user.is_authenticated %}
+        <script src="{{ url_for('static', filename='js/modules/chart-loader.js') }}"></script>
+    {% endif %}
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

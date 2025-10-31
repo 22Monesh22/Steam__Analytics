@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register | Steam Analytics Platform</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <style>
+        :root {
+            --primary: #667eea;
+            --primary-dark: #5a6fd8;
+            --secondary: #764ba2;
+            --dark: #1a202c;
+            --light: #f8fafc;
+            --gray: #718096;
+            --success: #48bb78;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            line-height: 1.6;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('https://miro.medium.com/v2/resize:fit:1200/0*zjoBPbuMkthgZcDv.gif') no-repeat center center;
+            background-size: cover;
+            z-index: -1;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: -1;
+        }
+
+        .auth-container {
+            max-width: 450px;
+            width: 100%;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: none;
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            overflow: hidden;
+        }
+
+        .card-body {
+            padding: 50px 40px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 30px;
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .logo span {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .card-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 8px;
+        }
+
+        .text-muted {
+            color: var(--gray) !important;
+            font-size: 1rem;
+        }
+
+        .form-floating {
+            margin-bottom: 20px;
+        }
+
+        .form-control {
+            padding: 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #fff;
+            height: auto;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-label {
+            color: var(--gray);
+            font-weight: 500;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .alert {
+            padding: 12px 16px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-size: 0.875rem;
+            border: 1px solid transparent;
+        }
+
+        .alert-success {
+            background: #f0fff4;
+            border-color: #9ae6b4;
+            color: #276749;
+        }
+
+        .alert-danger {
+            background: #fed7d7;
+            border-color: #feb2b2;
+            color: #c53030;
+        }
+
+        .form-text {
+            font-size: 0.8rem;
+            color: var(--gray);
+            margin-top: 5px;
+        }
+
+        .text-center a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .text-center a:hover {
+            text-decoration: underline;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 30px;
+            padding-top: 25px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary);
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.7rem;
+            color: var(--gray);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        @media (max-width: 768px) {
+            .card-body {
+                padding: 40px 30px;
+            }
+            
+            .auth-container {
+                max-width: 400px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="card">
+            <div class="card-body">
+                <div class="logo">
+                    <div class="logo-icon">
+                        <i class="fas fa-chart-network"></i>
+                    </div>
+                    <span>Steam Analytics</span>
+                </div>
+
+                <div class="text-center mb-4">
+                    <h2 class="card-title">Create Account</h2>
+                    <p class="text-muted">Join our analytics platform</p>
+                </div>
+                
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                                <i class="fas fa-{% if category == 'danger' %}exclamation-circle{% else %}info-circle{% endif %} me-2"></i>
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                <form method="POST" action="{{ url_for('auth.register') }}">
+                    <div class="form-floating">
+                        <input type="text" class="form-control" id="username" name="username" 
+                               placeholder="Username" required value="{{ request.form.username or '' }}">
+                        <label for="username"><i class="fas fa-user me-2"></i>Username</label>
+                    </div>
+                    
+                    <div class="form-floating">
+                        <input type="email" class="form-control" id="email" name="email" 
+                               placeholder="Email" required value="{{ request.form.email or '' }}">
+                        <label for="email"><i class="fas fa-envelope me-2"></i>Email</label>
+                    </div>
+                    
+                    <div class="form-floating">
+                        <input type="password" class="form-control" id="password" name="password" 
+                               placeholder="Password" required>
+                        <label for="password"><i class="fas fa-lock me-2"></i>Password</label>
+                        <div class="form-text">Password must be at least 6 characters long</div>
+                    </div>
+                    
+                    <div class="form-floating">
+                        <input type="password" class="form-control" id="confirm_password" name="confirm_password" 
+                               placeholder="Confirm Password" required>
+                        <label for="confirm_password"><i class="fas fa-lock me-2"></i>Confirm Password</label>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-user-plus me-2"></i>
+                        Create Account
+                    </button>
+                </form>
+                
+                <div class="text-center mt-4">
+                    <small class="text-muted">
+                        Already have an account? 
+                        <a href="{{ url_for('auth.login') }}" class="text-decoration-none">Sign in</a>
+                    </small>
+                </div>
+
+                <!-- Platform Stats -->
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <span class="stat-number">41M+</span>
+                        <span class="stat-label">Reviews</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">10K+</span>
+                        <span class="stat-label">Games</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">2.5M+</span>
+                        <span class="stat-label">Users</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Add loading state to form submission
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const button = this.querySelector('button[type="submit"]');
+            button.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Creating Account...';
+            button.disabled = true;
+        });
+
+        // Password confirmation validation
+        const password = document.getElementById('password');
+        const confirmPassword = document.getElementById('confirm_password');
+        
+        function validatePassword() {
+            if (password.value !== confirmPassword.value) {
+                confirmPassword.setCustomValidity("Passwords don't match");
+            } else {
+                confirmPassword.setCustomValidity('');
+            }
+        }
+        
+        password.onchange = validatePassword;
+        confirmPassword.onkeyup = validatePassword;
+    </script>
+</body>
+</html>
